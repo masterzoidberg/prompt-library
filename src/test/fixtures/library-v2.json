@@ -1,0 +1,180 @@
+{
+  "format": "prompt-library-backup",
+  "formatVersion": 2,
+  "appVersion": "0.1.0",
+  "exportedAt": "2026-01-15T12:00:00.000Z",
+  "data": {
+    "prompts": [
+      {
+        "id": "prompt-001",
+        "title": "Daily stand-up summary",
+        "content": "Summarize these notes for {{NAME}} in three bullet points.",
+        "description": "Short operational summary.",
+        "folderId": "folder-personal",
+        "tagIds": ["tag-ai", "tag-writing"],
+        "isFavorite": true,
+        "copyCount": 12,
+        "createdAt": "2025-01-02T09:00:00.000Z",
+        "updatedAt": "2025-02-10T14:30:00.000Z",
+        "lastCopiedAt": "2025-02-10T14:29:00.000Z",
+        "type": "template",
+        "targetTools": ["chatgpt"],
+        "notes": "Keep the output practical.",
+        "variableDefaults": {"NAME": "Ada"}
+      },
+      {
+        "id": "prompt-002",
+        "title": "Research brief",
+        "content": "# Research brief\n\nPreserve café, 東京, 🚀, —, and → exactly while separating evidence from interpretation.",
+        "description": "Long Markdown prompt used for evidence-focused research.",
+        "folderId": "folder-research",
+        "tagIds": ["tag-ai", "tag-markdown", "tag-unicode"],
+        "isFavorite": false,
+        "copyCount": 3,
+        "createdAt": "2025-03-04T08:15:00.000Z",
+        "updatedAt": "2025-03-06T16:45:00.000Z",
+        "lastCopiedAt": "2025-03-06T16:44:00.000Z",
+        "type": "research-procedure",
+        "targetTools": ["generic", "codex"],
+        "notes": "Do not guess when evidence is missing.",
+        "variableDefaults": {}
+      }
+    ],
+    "folders": [
+      {
+        "id": "folder-personal",
+        "name": "Personal",
+        "normalizedName": "personal",
+        "createdAt": "2025-01-01T08:00:00.000Z",
+        "updatedAt": "2025-01-01T08:00:00.000Z"
+      },
+      {
+        "id": "folder-research",
+        "name": "Research & Notes",
+        "normalizedName": "research & notes",
+        "createdAt": "2025-01-03T08:00:00.000Z",
+        "updatedAt": "2025-01-03T08:00:00.000Z"
+      },
+      {
+        "id": "unfiled",
+        "name": "Unfiled",
+        "normalizedName": "unfiled",
+        "createdAt": "2025-01-01T08:00:00.000Z",
+        "updatedAt": "2025-01-01T08:00:00.000Z"
+      }
+    ],
+    "tags": [
+      {
+        "id": "tag-ai",
+        "name": "AI",
+        "normalizedName": "ai",
+        "createdAt": "2025-01-01T09:00:00.000Z",
+        "updatedAt": "2025-01-01T09:00:00.000Z"
+      },
+      {
+        "id": "tag-markdown",
+        "name": "Markdown",
+        "normalizedName": "markdown",
+        "createdAt": "2025-01-03T09:00:00.000Z",
+        "updatedAt": "2025-01-03T09:00:00.000Z"
+      },
+      {
+        "id": "tag-unicode",
+        "name": "🚀 Unicode",
+        "normalizedName": "🚀 unicode",
+        "createdAt": "2025-01-06T09:00:00.000Z",
+        "updatedAt": "2025-01-06T09:00:00.000Z"
+      },
+      {
+        "id": "tag-writing",
+        "name": "Writing",
+        "normalizedName": "writing",
+        "createdAt": "2025-01-07T09:00:00.000Z",
+        "updatedAt": "2025-01-07T09:00:00.000Z"
+      }
+    ],
+    "settings": {
+      "schemaVersion": 1,
+      "theme": "dark",
+      "defaultSort": "most-copied",
+      "viewMode": "card",
+      "confirmBeforeDelete": false,
+      "rememberedVariableValues": {"NAME": "Grace"}
+    },
+    "promptVersions": [
+      {
+        "id": "version-001",
+        "promptId": "prompt-001",
+        "sequence": 1,
+        "createdAt": "2025-02-01T10:00:00.000Z",
+        "reason": "edit",
+        "snapshot": {
+          "title": "Daily stand-up summary",
+          "content": "Summarize these notes in three bullet points.",
+          "description": "Short operational summary.",
+          "type": "prompt",
+          "targetTools": [],
+          "notes": "Original wording.",
+          "variableDefaults": {}
+        }
+      },
+      {
+        "id": "version-002",
+        "promptId": "prompt-001",
+        "sequence": 2,
+        "createdAt": "2025-02-08T10:00:00.000Z",
+        "reason": "restore",
+        "snapshot": {
+          "title": "Daily stand-up summary",
+          "content": "Summarize these notes for {{NAME}} in three bullet points.",
+          "description": "Short operational summary.",
+          "type": "template",
+          "targetTools": ["chatgpt"],
+          "notes": "Keep the output practical.",
+          "variableDefaults": {"NAME": "Ada"}
+        }
+      },
+      {
+        "id": "version-003",
+        "promptId": "prompt-002",
+        "sequence": 1,
+        "createdAt": "2025-03-05T10:00:00.000Z",
+        "reason": "edit",
+        "snapshot": {
+          "title": "Research brief",
+          "content": "# Research brief\n\nPreserve source evidence.",
+          "type": "research-procedure",
+          "targetTools": ["generic"],
+          "variableDefaults": {}
+        }
+      }
+    ],
+    "bundles": [
+      {
+        "id": "bundle-001",
+        "name": "Research flow",
+        "description": "Read in the saved order.",
+        "promptIds": ["prompt-002", "prompt-001"],
+        "createdAt": "2025-03-10T10:00:00.000Z",
+        "updatedAt": "2025-03-10T10:05:00.000Z"
+      },
+      {
+        "id": "bundle-002",
+        "name": "Quick start",
+        "promptIds": ["prompt-001"],
+        "createdAt": "2025-03-11T10:00:00.000Z",
+        "updatedAt": "2025-03-11T10:00:00.000Z"
+      }
+    ]
+  },
+  "summary": {
+    "counts": {
+      "prompts": 2,
+      "folders": 3,
+      "tags": 4,
+      "promptVersions": 3,
+      "bundles": 2
+    }
+  },
+  "checksum": "8c9d07e7ce541f910d1f5f4ff028265720304b1f5d1b62bbe16cca19613e5fb3"
+}
