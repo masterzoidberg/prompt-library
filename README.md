@@ -4,6 +4,10 @@ Prompt Library is a personal, single-user browser library for storing, organizin
 
 Personal V1 supports prompt CRUD, full-content reading, folders, tags, favorites, ranked search, metadata, deterministic variables, version history with diff/restore, ordered bundles, keyboard shortcuts, responsive layout, theme settings, and verified JSON backup/replace restore.
 
+## Hosted app
+
+[Open Prompt Library](https://masterzoidberg.github.io/prompt-library/). This static version saves your library in this browser's IndexedDB; it does not upload or sync prompts to a server. Use the JSON export/import flow in Settings to back up or move your library to another browser or device.
+
 ## Commands
 
 ```bash
