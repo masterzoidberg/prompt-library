@@ -85,6 +85,8 @@ export type PromptCreate = Omit<
   folderId?: string;
   isFavorite?: boolean;
   tagIds?: string[];
+  newFolderName?: string;
+  newTagNames?: string[];
   type?: AssetType;
   targetTools?: TargetTool[];
   notes?: string;
@@ -94,7 +96,10 @@ export type PromptCreate = Omit<
 export type PromptUpdate = Partial<
   Omit<PromptV1, 'id' | 'createdAt' | 'updatedAt'>
 > &
-  Partial<Pick<Prompt, 'type' | 'targetTools' | 'notes' | 'variableDefaults'>>;
+  Partial<Pick<Prompt, 'type' | 'targetTools' | 'notes' | 'variableDefaults'>> & {
+    newFolderName?: string;
+    newTagNames?: string[];
+  };
 
 export function isAssetType(value: unknown): value is AssetType {
   return typeof value === 'string' && ASSET_TYPES.includes(value as AssetType);
@@ -118,3 +123,4 @@ export function toPromptV1(prompt: PromptV1 | Prompt): PromptV1 {
   const { type: _type, targetTools: _targetTools, notes: _notes, variableDefaults: _variableDefaults, ...v1 } = prompt as Prompt;
   return v1;
 }
+

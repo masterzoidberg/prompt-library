@@ -3,6 +3,8 @@ import { Dialog } from '../common/Dialog';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Textarea } from '../common/Textarea';
+import { FolderCombobox } from './FolderCombobox';
+import { TagCombobox } from './TagCombobox';
 import { useFolders } from '../../hooks/useFolders';
 import { useTags } from '../../hooks/useTags';
 import { SYSTEM_FOLDER_ID } from '../../config/constants';
@@ -20,6 +22,7 @@ import {
   type TargetTool,
 } from '../../types/prompt';
 import { detectVariables } from '../../services/templateService';
+import { normalizeName } from '../../utils/normalize';
 
 interface PromptFormDialogProps {
   open: boolean;
@@ -35,7 +38,9 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
   const [content, setContent] = useState(initial?.content ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [folderId, setFolderId] = useState(initial?.folderId ?? SYSTEM_FOLDER_ID);
+  const [newFolderName, setNewFolderName] = useState<string>();
   const [tagIds, setTagIds] = useState<string[]>(initial?.tagIds ?? []);
+  const [newTagNames, setNewTagNames] = useState<string[]>([]);
   const [type, setType] = useState<AssetType>(initial?.type ?? DEFAULT_ASSET_TYPE);
   const [targetTools, setTargetTools] = useState<TargetTool[]>(initial?.targetTools ?? []);
   const [notes, setNotes] = useState(initial?.notes ?? '');
@@ -51,7 +56,9 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
       setContent(initial?.content ?? '');
       setDescription(initial?.description ?? '');
       setFolderId(initial?.folderId ?? SYSTEM_FOLDER_ID);
+      setNewFolderName(undefined);
       setTagIds(initial?.tagIds ?? []);
+      setNewTagNames([]);
       setType(initial?.type ?? DEFAULT_ASSET_TYPE);
       setTargetTools(initial?.targetTools ?? []);
       setNotes(initial?.notes ?? '');
@@ -66,7 +73,9 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
     content !== (initial?.content ?? '') ||
     description !== (initial?.description ?? '') ||
     folderId !== (initial?.folderId ?? SYSTEM_FOLDER_ID) ||
+    newFolderName !== undefined ||
     tagIds.join(',') !== (initial?.tagIds ?? []).join(',') ||
+    newTagNames.length > 0 ||
     type !== (initial?.type ?? DEFAULT_ASSET_TYPE) ||
     targetTools.join(',') !== (initial?.targetTools ?? []).join(',') ||
     notes !== (initial?.notes ?? '') ||
@@ -90,7 +99,7 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
     if (!content.trim()) return setError('Content is required.');
     setSubmitting(true);
     try {
-      await onSubmit({
+      const values: PromptCreate = {
         title: title.trim(),
         content,
         description: description.trim() || undefined,
@@ -100,7 +109,10 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
         targetTools,
         notes: notes.trim() || undefined,
         variableDefaults,
-      });
+      };
+      if (newFolderName !== undefined) values.newFolderName = newFolderName;
+      if (newTagNames.length > 0) values.newTagNames = newTagNames;
+      await onSubmit(values);
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save.');
@@ -118,6 +130,16 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
 
   const toggleTag = (id: string) =>
     setTagIds((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
+
+  const stageTag = (name: string) => {
+    const normalizedName = normalizeName(name);
+    setNewTagNames((prev) => prev.some((item) => normalizeName(item) === normalizedName) ? prev : [...prev, name]);
+  };
+
+  const removeStagedTag = (name: string) => {
+    const normalizedName = normalizeName(name);
+    setNewTagNames((prev) => prev.filter((item) => normalizeName(item) !== normalizedName));
+  };
 
   const toggleTargetTool = (tool: TargetTool) =>
     setTargetTools((prev) => (prev.includes(tool) ? prev.filter((item) => item !== tool) : [...prev, tool]));
@@ -223,43 +245,28 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
             <label htmlFor="prompt-folder" className="mb-1 block text-sm font-medium">
               Folder
             </label>
-            <select
-              id="prompt-folder"
-              value={folderId}
-              onChange={(e) => setFolderId(e.target.value)}
-              className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-            >
-              {folders.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.name}
-                </option>
-              ))}
-            </select>
+            <FolderCombobox
+              folders={folders}
+              selectedId={folderId}
+              stagedName={newFolderName}
+              onSelect={(id) => {
+                setFolderId(id);
+                setNewFolderName(undefined);
+              }}
+              onStage={setNewFolderName}
+            />
           </div>
 
           <div>
-            <span className="mb-1 block text-sm font-medium">Tags</span>
-            <div className="flex flex-wrap gap-1 rounded-md border border-neutral-300 p-2 dark:border-neutral-700">
-              {tags.length === 0 ? (
-                <span className="text-xs text-neutral-500">No tags yet.</span>
-              ) : (
-                tags.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    aria-pressed={tagIds.includes(t.id)}
-                    onClick={() => toggleTag(t.id)}
-                    className={`rounded px-2 py-0.5 text-xs ${
-                      tagIds.includes(t.id)
-                        ? 'bg-accent-600 text-white'
-                        : 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200'
-                    }`}
-                  >
-                    #{t.name}
-                  </button>
-                ))
-              )}
-            </div>
+            <label htmlFor="prompt-tags" className="mb-1 block text-sm font-medium">Tags</label>
+            <TagCombobox
+              tags={tags}
+              selectedIds={tagIds}
+              stagedNames={newTagNames}
+              onToggle={toggleTag}
+              onStage={stageTag}
+              onRemoveStaged={removeStagedTag}
+            />
           </div>
 
           <fieldset className="sm:col-span-2">
@@ -315,3 +322,4 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
     </Dialog>
   );
 }
+

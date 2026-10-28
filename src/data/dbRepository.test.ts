@@ -109,6 +109,69 @@ describe('promptRepo', () => {
     expect(p.folderId).toBe('unfiled');
   });
 
+  it('creates staged folders and tags with the prompt and reuses normalized matches', async () => {
+    const existingFolder = await folderRepo.createFolder({ name: 'Research' });
+    const existingTag = await tagRepo.createTag({ name: 'Research' });
+
+    const prompt = await promptRepo.createPrompt({
+      title: 'Organized prompt',
+      content: 'Prompt content',
+      folderId: 'unfiled',
+      newFolderName: ' research ',
+      tagIds: [],
+      newTagNames: [' research ', 'Personal', ' personal '],
+    });
+
+    expect(prompt.folderId).toBe(existingFolder.id);
+    expect(prompt.tagIds).toHaveLength(2);
+    expect(prompt.tagIds[0]).toBe(existingTag.id);
+    expect(await folderRepo.listFolders()).toHaveLength(2);
+    expect((await tagRepo.listTags()).map((tag) => tag.name).sort()).toEqual(['Personal', 'Research']);
+    expect(prompt).not.toHaveProperty('newFolderName');
+    expect(prompt).not.toHaveProperty('newTagNames');
+  });
+
+  it('reuses the protected Unfiled folder for normalized casing and whitespace variants', async () => {
+    const prompt = await promptRepo.createPrompt({
+      title: 'Unfiled prompt',
+      content: 'Prompt content',
+      newFolderName: '  UNFILED  ',
+    });
+
+    expect(prompt.folderId).toBe('unfiled');
+    expect((await folderRepo.listFolders()).map((folder) => folder.id)).toEqual(['unfiled']);
+  });
+
+  it('rolls staged organization records back when prompt references are invalid', async () => {
+    await expect(promptRepo.createPrompt({
+      title: 'Invalid prompt',
+      content: 'Prompt content',
+      folderId: 'unfiled',
+      newFolderName: 'Temporary',
+      tagIds: ['missing-tag'],
+      newTagNames: ['Staged tag'],
+    })).rejects.toThrow(/Prompt tag does not exist/);
+
+    expect((await folderRepo.listFolders()).map((folder) => folder.name)).toEqual(['Unfiled']);
+    expect(await tagRepo.listTags()).toEqual([]);
+    expect(await promptRepo.listPrompts()).toEqual([]);
+  });
+
+  it('updates a prompt with staged folder and tag records in one transaction', async () => {
+    const prompt = await promptRepo.createPrompt({ title: 'Original', content: 'content' });
+
+    const updated = await promptRepo.updatePrompt(prompt.id, {
+      newFolderName: 'Experiments',
+      newTagNames: ['Personal'],
+    });
+
+    expect((await folderRepo.listFolders()).map((folder) => folder.name).sort()).toEqual(['Experiments', 'Unfiled']);
+    expect((await tagRepo.listTags()).map((tag) => tag.name)).toEqual(['Personal']);
+    expect(updated.folderId).not.toBe('unfiled');
+    expect(updated.tagIds).toHaveLength(1);
+    expect(await promptRepo.getPrompt(prompt.id)).toEqual(updated);
+  });
+
   it('assigns deterministic metadata defaults and persists valid metadata', async () => {
     const folder = await folderRepo.createFolder({ name: 'Templates' });
     const tag = await tagRepo.createTag({ name: 'Reusable' });
@@ -227,3 +290,4 @@ describe('db', () => {
     expect(DB_NAME).toBe('prompt-library');
   });
 });
+
