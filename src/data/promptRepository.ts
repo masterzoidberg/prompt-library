@@ -13,8 +13,11 @@ import {
   isTargetTool,
   withPromptDefaults,
 } from '../types/prompt';
-import { SYSTEM_FOLDER_ID } from '../config/constants';
+import { SYSTEM_FOLDER_ID, SYSTEM_FOLDER_NAME } from '../config/constants';
+import type { Folder } from '../types/folder';
+import type { Tag } from '../types/tag';
 import { newId } from '../utils/id';
+import { normalizeName } from '../utils/normalize';
 import { nowIso } from '../utils/date';
 import { getDb, type PromptDB } from './db';
 import {
@@ -138,6 +141,66 @@ async function validatePromptReferences(
   }
 }
 
+
+async function getOrCreateFolderInTransaction(
+  tx: PromptWriteTransaction,
+  input: unknown,
+): Promise<string> {
+  if (typeof input !== 'string') throw new PromptValidationError('New folder name must be a string');
+  const name = input.trim();
+  if (!name) throw new PromptValidationError('New folder name is required');
+  const normalizedName = normalizeName(name);
+  const store = tx.objectStore('folders');
+
+  if (normalizedName === normalizeName(SYSTEM_FOLDER_NAME)) {
+    const systemFolder = await store.get(SYSTEM_FOLDER_ID);
+    if (systemFolder) return systemFolder.id;
+    throw new PromptValidationError('The Unfiled system folder does not exist');
+  }
+
+  const existing = await store.index('by-normalizedName').get(normalizedName);
+  if (existing) return existing.id;
+
+  const now = nowIso();
+  const folder: Folder = { id: newId(), name, normalizedName, createdAt: now, updatedAt: now };
+  await store.add!(folder);
+  return folder.id;
+}
+
+async function resolveTagIdsInTransaction(
+  tx: PromptWriteTransaction,
+  currentIds: string[],
+  stagedNames: unknown,
+): Promise<string[]> {
+  if (!Array.isArray(stagedNames)) throw new PromptValidationError('New tag names must be an array');
+  const tagIds = [...currentIds];
+  const seenNames = new Set<string>();
+  const store = tx.objectStore('tags');
+
+  for (const [index, input] of stagedNames.entries()) {
+    if (typeof input !== 'string') {
+      throw new PromptValidationError(`New tag names[${index}] must be a string`);
+    }
+    const name = input.trim();
+    if (!name) throw new PromptValidationError(`New tag names[${index}] must not be empty`);
+    const normalizedName = normalizeName(name);
+    if (seenNames.has(normalizedName)) continue;
+    seenNames.add(normalizedName);
+
+    const existing = await store.index('by-normalizedName').get(normalizedName);
+    let tagId = existing?.id;
+    if (!tagId) {
+      const now = nowIso();
+      const tag: Tag = { id: newId(), name, normalizedName, createdAt: now, updatedAt: now };
+      await store.add!(tag);
+      tagId = tag.id;
+    }
+    if (!tagIds.includes(tagId)) tagIds.push(tagId);
+  }
+
+  return tagIds;
+}
+
 async function abortTransaction(tx: PromptWriteTransaction): Promise<void> {
   try {
     tx.abort();
@@ -163,12 +226,16 @@ export async function createPrompt(input: PromptCreate): Promise<Prompt> {
   if (input.isFavorite !== undefined && typeof input.isFavorite !== 'boolean') {
     throw new PromptValidationError('Prompt isFavorite must be a boolean');
   }
-  const folderId = input.folderId || SYSTEM_FOLDER_ID;
-  const tagIds = validateTagIds(input.tagIds ?? []);
+  const requestedFolderId = input.folderId || SYSTEM_FOLDER_ID;
+  const requestedTagIds = validateTagIds(input.tagIds ?? []);
   const metadata = validateMetadata(input);
   const db = await getDb();
   const tx = db.transaction(['prompts', 'folders', 'tags'], 'readwrite');
   try {
+    const folderId = input.newFolderName !== undefined
+      ? await getOrCreateFolderInTransaction(tx, input.newFolderName)
+      : requestedFolderId;
+    const tagIds = await resolveTagIdsInTransaction(tx, requestedTagIds, input.newTagNames ?? []);
     await validatePromptReferences(tx, folderId, tagIds);
     const now = nowIso();
     const prompt: Prompt = {
@@ -225,7 +292,13 @@ export async function updatePrompt(
       if (typeof patch.folderId !== 'string') throw new PromptValidationError('Prompt folderId must be a string');
       next.folderId = patch.folderId || SYSTEM_FOLDER_ID;
     }
-    if (patch.tagIds !== undefined) next.tagIds = validateTagIds(patch.tagIds);
+    if (patch.newFolderName !== undefined) {
+      next.folderId = await getOrCreateFolderInTransaction(tx, patch.newFolderName);
+    }
+    if (patch.tagIds !== undefined || patch.newTagNames !== undefined) {
+      const tagIds = patch.tagIds === undefined ? next.tagIds : validateTagIds(patch.tagIds);
+      next.tagIds = await resolveTagIdsInTransaction(tx, tagIds, patch.newTagNames ?? []);
+    }
     if (patch.isFavorite !== undefined) {
       if (typeof patch.isFavorite !== 'boolean') throw new PromptValidationError('Prompt isFavorite must be a boolean');
       next.isFavorite = patch.isFavorite;
