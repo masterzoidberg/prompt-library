@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import 'fake-indexeddb/auto';
 import { PromptFormDialog } from './PromptFormDialog';
+import { FolderCombobox } from './FolderCombobox';
+import { TagCombobox } from './TagCombobox';
 import { LibraryDataProvider } from '../../hooks/LibraryDataProvider';
 import { resetDbCache, getDb, ensureSeeded } from '../../data/db';
 import * as folderRepo from '../../data/folderRepository';
@@ -311,6 +313,11 @@ describe('PromptFormDialog metadata', () => {
     await user.keyboard('{ArrowDown}{Enter}');
     expect(folder).toHaveValue('Writing');
 
+    await user.click(screen.getByLabelText('Title'));
+    await user.click(folder);
+    expect(await screen.findByRole('listbox', { name: 'Folders' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+
     const tags = screen.getByRole('combobox', { name: 'Tags' });
     await user.click(tags);
     await user.type(tags, 'Research');
@@ -329,6 +336,54 @@ describe('PromptFormDialog metadata', () => {
       folderId: writing.id,
       tagIds: [researchTag.id],
     })));
+  });
+
+  it('leaves modified Enter for the save shortcut instead of selecting a folder or tag option', async () => {
+    const folders = await folderRepo.listFolders();
+    const tags = await tagRepo.listTags();
+    const onStageFolder = vi.fn();
+    const onStageTag = vi.fn();
+    const onSaveShortcut = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <form
+        onKeyDown={(event) => {
+          if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+            event.preventDefault();
+            onSaveShortcut();
+          }
+        }}
+      >
+        <FolderCombobox
+          folders={folders}
+          selectedId="unfiled"
+          onSelect={vi.fn()}
+          onStage={onStageFolder}
+        />
+        <TagCombobox
+          tags={tags}
+          selectedIds={[]}
+          stagedNames={[]}
+          onToggle={vi.fn()}
+          onStage={onStageTag}
+          onRemoveStaged={vi.fn()}
+        />
+      </form>,
+    );
+
+    const folder = screen.getByRole('combobox', { name: 'Folder' });
+    await user.click(folder);
+    await user.type(folder, 'New Folder');
+    await user.keyboard('{Control>}{Enter}{/Control}');
+    expect(onStageFolder).not.toHaveBeenCalled();
+
+    const tag = screen.getByRole('combobox', { name: 'Tags' });
+    await user.click(tag);
+    await user.type(tag, 'New Tag');
+    await user.keyboard('{Meta>}{Enter}{/Meta}');
+    expect(onStageTag).not.toHaveBeenCalled();
+    expect(onSaveShortcut).toHaveBeenCalledTimes(2);
   });
 
   it('displays and updates existing folder and tags while editing', async () => {

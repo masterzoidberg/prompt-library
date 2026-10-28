@@ -78,7 +78,14 @@ export function TagCombobox({
       event.preventDefault();
       setOpen(true);
       setActiveIndex((index) => index < 0 ? Math.max(optionCount - 1, 0) : Math.max(index - 1, 0));
-    } else if (event.key === 'Enter' && open) {
+    } else if (
+      event.key === 'Enter' &&
+      open &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey &&
+      !event.shiftKey
+    ) {
       event.preventDefault();
       if (optionCount > 0) selectOption(activeIndex < 0 ? 0 : Math.min(activeIndex, optionCount - 1));
     }
@@ -145,8 +152,8 @@ export function TagCombobox({
           aria-label="Tags"
           aria-autocomplete="list"
           aria-expanded={open}
-        aria-controls={open ? LISTBOX_ID : undefined}
-        aria-activedescendant={open && activeIndex >= 0 && activeIndex < optionCount ? `prompt-tag-option-${activeIndex}` : undefined}
+          aria-controls={open ? LISTBOX_ID : undefined}
+          aria-activedescendant={open && activeIndex >= 0 && activeIndex < optionCount ? `prompt-tag-option-${activeIndex}` : undefined}
           autoComplete="off"
           placeholder="Search or add tags..."
           value={query}

@@ -65,8 +65,10 @@ export function FolderCombobox({ folders, selectedId, stagedName, onSelect, onSt
       }
     }
     close();
-    suppressNextFocusOpen.current = true;
-    inputRef.current?.focus();
+    if (document.activeElement !== inputRef.current) {
+      suppressNextFocusOpen.current = true;
+      inputRef.current?.focus();
+    }
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -78,7 +80,14 @@ export function FolderCombobox({ folders, selectedId, stagedName, onSelect, onSt
       event.preventDefault();
       setOpen(true);
       setActiveIndex((index) => index < 0 ? Math.max(optionCount - 1, 0) : Math.max(index - 1, 0));
-    } else if (event.key === 'Enter' && open) {
+    } else if (
+      event.key === 'Enter' &&
+      open &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey &&
+      !event.shiftKey
+    ) {
       event.preventDefault();
       if (optionCount > 0) selectOption(activeIndex < 0 ? 0 : Math.min(activeIndex, optionCount - 1));
     }
