@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import 'fake-indexeddb/auto';
@@ -7,6 +7,7 @@ import { PromptFormDialog } from './PromptFormDialog';
 import { FolderCombobox } from './FolderCombobox';
 import { TagCombobox } from './TagCombobox';
 import { LibraryDataProvider } from '../../hooks/LibraryDataProvider';
+import { LibraryDataContext } from '../../hooks/libraryDataContext';
 import { resetDbCache, getDb, ensureSeeded } from '../../data/db';
 import * as folderRepo from '../../data/folderRepository';
 import * as tagRepo from '../../data/tagRepository';
@@ -248,10 +249,10 @@ describe('PromptFormDialog metadata', () => {
     expect(tag.id).toBeDefined();
   });
 
-  it('does not create staged folders or tags when the form is cancelled', async () => {
+  it('keeps staged folders and tags out of storage until discard is confirmed', async () => {
     const onOpenChange = vi.fn();
     const onSubmit = vi.fn();
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const confirm = vi.spyOn(window, 'confirm');
     const user = userEvent.setup();
 
     render(
@@ -287,11 +288,94 @@ describe('PromptFormDialog metadata', () => {
     expect(screen.getAllByRole('button', { name: 'Remove tag Temporary' })).toHaveLength(1);
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
+    const discardDialog = await screen.findByRole('dialog', { name: 'Discard unsaved changes?' });
+    expect(within(discardDialog).getByText('Your changes to this prompt have not been saved.')).toBeInTheDocument();
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(confirm).not.toHaveBeenCalled();
+
+    await user.click(within(discardDialog).getByRole('button', { name: 'Keep editing' }));
+    expect(screen.getByLabelText('Title')).toHaveValue('');
+    expect(screen.getByLabelText('Content')).toHaveValue('');
+    expect(screen.getByRole('button', { name: 'Remove tag Temporary' })).toBeInTheDocument();
+    expect(onOpenChange).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    const finalConfirmation = await screen.findByRole('dialog', { name: 'Discard unsaved changes?' });
+    await user.click(within(finalConfirmation).getByRole('button', { name: 'Discard' }));
     await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
-    expect(confirm).toHaveBeenCalledWith('Discard unsaved changes?');
+    expect(confirm).not.toHaveBeenCalled();
     expect(onSubmit).not.toHaveBeenCalled();
     expect((await folderRepo.listFolders()).map((item) => item.name)).toEqual(['Unfiled']);
     expect(await tagRepo.listTags()).toEqual([]);
+  });
+
+  it('closes an unchanged edit without asking to discard', async () => {
+    const initial = await promptRepo.createPrompt({ title: 'Unchanged', content: 'Original content' });
+    const onOpenChange = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <LibraryDataProvider>
+        <PromptFormDialog open initial={initial} onOpenChange={onOpenChange} onSubmit={vi.fn()} />
+      </LibraryDataProvider>,
+    );
+
+    await screen.findByLabelText('Content');
+    await user.click(screen.getByRole('button', { name: 'Close dialog' }));
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(screen.queryByRole('dialog', { name: 'Discard unsaved changes?' })).not.toBeInTheDocument();
+  });
+
+  it('asks before discarding edited changes and keeps them when requested', async () => {
+    const initial = {
+      id: 'prompt-dirty',
+      title: 'Original title',
+      content: 'Original content',
+      folderId: 'unfiled',
+      tagIds: [],
+      isFavorite: false,
+      copyCount: 0,
+      createdAt: '2025-01-01T00:00:00.000Z',
+      updatedAt: '2025-01-01T00:00:00.000Z',
+      lastCopiedAt: null,
+      type: 'prompt' as const,
+      targetTools: [],
+      variableDefaults: {},
+    };
+    const onOpenChange = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <LibraryDataContext.Provider
+        value={{
+          prompts: [],
+          bundles: [],
+          folders: [],
+          tags: [],
+          loaded: true,
+          error: null,
+          reload: async () => undefined,
+        }}
+      >
+        <PromptFormDialog open initial={initial} onOpenChange={onOpenChange} onSubmit={vi.fn()} />
+      </LibraryDataContext.Provider>,
+    );
+
+    const title = await screen.findByLabelText('Title');
+    await user.clear(title);
+    await user.type(title, 'Changed title');
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    const discardDialog = await screen.findByRole('dialog', { name: 'Discard unsaved changes?' });
+    await user.click(within(discardDialog).getByRole('button', { name: 'Keep editing' }));
+    expect(title).toHaveValue('Changed title');
+    expect(onOpenChange).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    const secondConfirmation = await screen.findByRole('dialog', { name: 'Discard unsaved changes?' });
+    await user.click(within(secondConfirmation).getByRole('button', { name: 'Discard' }));
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
   });
 
   it('supports arrow-key selection and Escape without creating records', async () => {
