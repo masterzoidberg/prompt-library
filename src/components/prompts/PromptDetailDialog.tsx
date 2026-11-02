@@ -81,7 +81,7 @@ export function PromptDetailDialog({
 
         <section aria-labelledby="prompt-detail-content-heading" className="space-y-2">
           <h3 id="prompt-detail-content-heading" className="text-sm font-semibold">Content</h3>
-          <pre className="max-h-[45vh] overflow-auto whitespace-pre-wrap break-words rounded-md border border-neutral-200 bg-neutral-50 p-4 font-mono text-sm leading-6 dark:border-neutral-800 dark:bg-neutral-900">
+          <pre className="prompt-content max-h-[45vh] overflow-auto whitespace-pre-wrap break-words rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
             {prompt.content}
           </pre>
         </section>

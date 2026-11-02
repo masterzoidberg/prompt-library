@@ -291,13 +291,13 @@ export function VersionHistoryDialog({
                   <div className="grid gap-2 text-xs sm:grid-cols-2">
                     <div>
                       <p className="mb-1 font-medium">Current content</p>
-                      <pre className="max-h-24 overflow-auto whitespace-pre-wrap rounded border border-amber-200 bg-white/60 p-2 dark:border-amber-900 dark:bg-black/20">
+                      <pre className="prompt-content max-h-24 overflow-auto whitespace-pre-wrap rounded border border-amber-200 bg-white/60 p-2 dark:border-amber-900 dark:bg-black/20">
                         {prompt.content}
                       </pre>
                     </div>
                     <div>
                       <p className="mb-1 font-medium">Restored content</p>
-                      <pre className="max-h-24 overflow-auto whitespace-pre-wrap rounded border border-amber-200 bg-white/60 p-2 dark:border-amber-900 dark:bg-black/20">
+                      <pre className="prompt-content max-h-24 overflow-auto whitespace-pre-wrap rounded border border-amber-200 bg-white/60 p-2 dark:border-amber-900 dark:bg-black/20">
                         {restoreCandidate.snapshot.content}
                       </pre>
                     </div>

@@ -78,6 +78,7 @@ describe('PromptDetailDialog', () => {
 
     expect(screen.getByRole('dialog', { name: 'Prompt detail: Long prompt' })).toBeInTheDocument();
     expect(screen.getByText(/# Heading/)).toBeInTheDocument();
+    expect(screen.getByText(/# Heading/).closest('pre')).toHaveClass('prompt-content');
     expect(screen.getByText('A reusable research prompt.')).toBeInTheDocument();
     expect(screen.getByText('Keep the evidence boundary explicit.')).toBeInTheDocument();
     expect(screen.getByText('Research')).toBeInTheDocument();

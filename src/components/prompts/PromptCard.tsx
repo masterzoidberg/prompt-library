@@ -205,7 +205,7 @@ export function PromptCard({
         </Dropdown>
       </header>
 
-      <pre className="line-clamp-4 whitespace-pre-wrap break-words font-mono text-xs text-neutral-600 dark:text-neutral-300">
+      <pre className="prompt-content line-clamp-4 whitespace-pre-wrap break-words text-neutral-600 dark:text-neutral-300">
         <HighlightedText value={prompt.content} field="content" matches={searchMatches} />
       </pre>
 

@@ -13,6 +13,8 @@ import {
 } from './importExport';
 import { ImportValidationError } from './importExport';
 import { ensureSeeded, getDb, resetDbCache } from './db';
+import { saveSettings } from './settingsRepository';
+import { DEFAULT_SETTINGS } from '../types/settings';
 
 const libraryFixture = fixture as unknown as V2ExportPayload;
 const legacyLibraryFixture = legacyFixture as unknown as ExportPayload;
@@ -43,7 +45,14 @@ describe('canonical v2 export', () => {
   it('validates the deterministic fixture and its checksum', async () => {
     const validated = validateExport(libraryFixture);
 
-    expect(validated).toEqual(libraryFixture);
+    expect(validated).toMatchObject(libraryFixture);
+    expect((validated as V2ExportPayload).data.settings).toMatchObject({
+      interfaceFontFamily: 'system-sans',
+      interfaceFontSize: 16,
+      promptFontFamily: 'monospace',
+      promptFontSize: 14,
+      promptLineSpacing: 'normal',
+    });
     expect(await verifyExportChecksum(validated)).toBe(true);
   });
 
@@ -51,10 +60,50 @@ describe('canonical v2 export', () => {
     await importLibrary(libraryFixture);
 
     const exported = await exportLibrary();
+    const expected = clonePayload(libraryFixture);
+    expected.data.settings = {
+      ...expected.data.settings,
+      interfaceFontFamily: 'system-sans',
+      interfaceFontSize: 16,
+      promptFontFamily: 'monospace',
+      promptFontSize: 14,
+      promptLineSpacing: 'normal',
+    };
     expect(exported.formatVersion).toBe(2);
-    expect(normalizeExportedAt(exported)).toEqual(normalizeExportedAt(libraryFixture));
+    expect(normalizeExportedAt(exported)).toMatchObject(normalizeExportedAt(expected));
     expect(exported.data.bundles[0].promptIds).toEqual(['prompt-002', 'prompt-001']);
     expect(JSON.parse(serializeExport(exported))).toEqual(exported);
+  });
+
+  it('round-trips non-default typography settings through the portable backup', async () => {
+    const typographySettings = {
+      ...DEFAULT_SETTINGS,
+      interfaceFontFamily: 'serif',
+      interfaceFontSize: 19,
+      promptFontFamily: 'same-as-interface',
+      promptFontSize: 23,
+      promptLineSpacing: 'relaxed',
+    };
+    await saveSettings(typographySettings as never);
+
+    const exported = await exportLibrary();
+    expect(exported.data.settings).toMatchObject(typographySettings);
+    expect(await verifyExportChecksum(exported)).toBe(true);
+
+    const serialized = JSON.parse(serializeExport(exported));
+    expect(serialized.data.settings).toMatchObject(typographySettings);
+    await importLibrary(serialized);
+    expect((await exportLibrary()).data.settings).toMatchObject(typographySettings);
+  });
+
+  it('rejects invalid typography values in a backup', () => {
+    const invalidFamily = clonePayload(libraryFixture);
+    invalidFamily.data.settings.promptFontFamily = 'comic-sans' as never;
+    expect(() => validateExport(invalidFamily)).toThrow(/data\.settings\.promptFontFamily/);
+
+    const invalidSize = clonePayload(libraryFixture);
+    invalidSize.data.settings.interfaceFontSize = 99;
+    expect(() => validateExport(invalidSize)).toThrow(/data\.settings\.interfaceFontSize/);
   });
 
   it('rejects altered data through checksum validation without mutating the database', async () => {

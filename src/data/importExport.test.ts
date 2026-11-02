@@ -48,6 +48,11 @@ function basePayload(): ExportPayload {
       defaultSort: 'recently-updated',
       viewMode: 'card',
       confirmBeforeDelete: true,
+      interfaceFontFamily: 'system-sans',
+      interfaceFontSize: 16,
+      promptFontFamily: 'monospace',
+      promptFontSize: 14,
+      promptLineSpacing: 'normal',
     },
   };
 }
@@ -66,7 +71,14 @@ describe('validateExport', () => {
   it('accepts the committed representative v1 fixture without losing fields', () => {
     const validated = validateExport(libraryFixture);
 
-    expect(normalizeExportedAt(validated)).toEqual(normalizeExportedAt(libraryFixture));
+    expect(normalizeExportedAt(validated)).toMatchObject(normalizeExportedAt(libraryFixture));
+    expect(validated.settings).toMatchObject({
+      interfaceFontFamily: 'system-sans',
+      interfaceFontSize: 16,
+      promptFontFamily: 'monospace',
+      promptFontSize: 14,
+      promptLineSpacing: 'normal',
+    });
   });
 
   it('accepts a minimal valid payload', () => {
@@ -244,7 +256,15 @@ describe('validateExport', () => {
 
 describe('exportLibrary / importLibrary', () => {
   it('serializes only a validated v1 payload', () => {
-    expect(JSON.parse(serializeExport(libraryFixture))).toEqual(libraryFixture);
+    const serialized = JSON.parse(serializeExport(libraryFixture));
+    expect(serialized).toMatchObject(libraryFixture);
+    expect(serialized.settings).toMatchObject({
+      interfaceFontFamily: 'system-sans',
+      interfaceFontSize: 16,
+      promptFontFamily: 'monospace',
+      promptFontSize: 14,
+      promptLineSpacing: 'normal',
+    });
 
     const unsupported = clonePayload(libraryFixture);
     unsupported.version = 2;
@@ -259,7 +279,14 @@ describe('exportLibrary / importLibrary', () => {
     expect(exported.data.prompts.map(toPromptV1)).toEqual(libraryFixture.prompts);
     expect(exported.data.folders).toEqual(libraryFixture.folders);
     expect(exported.data.tags).toEqual(libraryFixture.tags);
-    expect(exported.data.settings).toEqual(libraryFixture.settings);
+    expect(exported.data.settings).toMatchObject(libraryFixture.settings);
+    expect(exported.data.settings).toMatchObject({
+      interfaceFontFamily: 'system-sans',
+      interfaceFontSize: 16,
+      promptFontFamily: 'monospace',
+      promptFontSize: 14,
+      promptLineSpacing: 'normal',
+    });
     expect(exported.data.promptVersions).toEqual([]);
     expect(exported.data.bundles).toEqual([]);
     expect(exported.exportedAt).not.toBe(libraryFixture.exportedAt);

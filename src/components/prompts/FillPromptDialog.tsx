@@ -118,7 +118,7 @@ export function FillPromptDialog({ open, onOpenChange, prompt, onCopy }: FillPro
           <h3 id="rendered-prompt-preview" className="text-sm font-semibold">
             Preview
           </h3>
-          <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-neutral-200 bg-neutral-50 p-3 font-mono text-sm dark:border-neutral-800 dark:bg-neutral-900">
+          <pre className="prompt-content max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900">
             {result.rendered}
           </pre>
         </section>

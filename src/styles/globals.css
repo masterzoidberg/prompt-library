@@ -5,6 +5,24 @@
 @layer base {
   :root {
     color-scheme: light dark;
+    --interface-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --interface-font-size: 16px;
+    --ui-text-xs: max(12px, calc(var(--interface-font-size) * 0.75));
+    --ui-text-sm: max(12px, calc(var(--interface-font-size) * 0.875));
+    --ui-text-base: var(--interface-font-size);
+    --ui-text-lg: calc(var(--interface-font-size) * 1.125);
+    --ui-text-xl: calc(var(--interface-font-size) * 1.25);
+    --ui-text-2xl: calc(var(--interface-font-size) * 1.5);
+    --ui-text-3xl: calc(var(--interface-font-size) * 1.875);
+    --ui-text-4xl: calc(var(--interface-font-size) * 2.25);
+    --ui-text-5xl: calc(var(--interface-font-size) * 3);
+    --ui-text-6xl: calc(var(--interface-font-size) * 3.75);
+    --ui-text-7xl: calc(var(--interface-font-size) * 4.5);
+    --ui-text-8xl: calc(var(--interface-font-size) * 6);
+    --ui-text-9xl: calc(var(--interface-font-size) * 8);
+    --prompt-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --prompt-font-size: 14px;
+    --prompt-line-height: 1.5;
   }
 
   html {
@@ -13,6 +31,8 @@
 
   body {
     @apply bg-neutral-50 text-neutral-900 antialiased;
+    font-family: var(--interface-font-family);
+    font-size: var(--interface-font-size);
   }
 
   html.dark body {
@@ -25,6 +45,13 @@
 }
 
 @layer utilities {
+  body .prompt-content {
+    font-family: var(--prompt-font-family);
+    font-size: var(--prompt-font-size);
+    line-height: var(--prompt-line-height);
+    overflow-wrap: anywhere;
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
   }

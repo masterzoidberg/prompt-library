@@ -208,7 +208,7 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
             onChange={(e) => setContent(e.target.value)}
             placeholder="Paste or write your prompt. Formatting is preserved exactly."
             rows={16}
-            className="min-h-64 resize-y sm:min-h-80"
+            className="prompt-content min-h-64 resize-y sm:min-h-80"
           />
         </div>
 

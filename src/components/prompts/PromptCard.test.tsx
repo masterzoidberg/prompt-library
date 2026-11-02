@@ -61,6 +61,7 @@ describe('PromptCard', () => {
     );
     expect(screen.getByText('Hello')).toBeInTheDocument();
     expect(screen.getByText(/line1/)).toBeInTheDocument();
+    expect(screen.getByText(/line1/).closest('pre')).toHaveClass('prompt-content');
     expect(screen.getByText('Type: Template')).toBeInTheDocument();
     expect(screen.getByText('Target: ChatGPT')).toBeInTheDocument();
     expect(screen.getByText('Target: Codex')).toBeInTheDocument();

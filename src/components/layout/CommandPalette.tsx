@@ -142,7 +142,7 @@ export function CommandPalette() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <h3 className="truncate text-sm font-semibold">{prompt.title}</h3>
-                      <p className="mt-1 line-clamp-2 whitespace-pre-wrap text-xs text-neutral-600 dark:text-neutral-300">
+                      <p className={`mt-1 line-clamp-2 whitespace-pre-wrap text-xs text-neutral-600 dark:text-neutral-300 ${prompt.description?.trim() ? '' : 'prompt-content'}`}>
                         {preview(prompt)}
                       </p>
                     </div>
