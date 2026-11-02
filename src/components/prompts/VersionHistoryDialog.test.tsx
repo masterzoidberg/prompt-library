@@ -119,6 +119,8 @@ describe('VersionHistoryDialog', () => {
     await user.click(await screen.findByRole('button', { name: 'Restore version 1' }));
     expect(screen.getByRole('alert')).toHaveTextContent('before');
     expect(screen.getByRole('alert')).toHaveTextContent('after');
+    expect(screen.getByRole('alert').querySelectorAll('pre')).toHaveLength(2);
+    expect(Array.from(screen.getByRole('alert').querySelectorAll('pre')).every((node) => node.classList.contains('prompt-content'))).toBe(true);
     expect(onRestore).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: 'Confirm restore version 1' }));

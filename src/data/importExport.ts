@@ -10,7 +10,15 @@ import type {
 } from '../types';
 import { isAssetType, isTargetTool, withPromptDefaults } from '../types';
 import { SYSTEM_FOLDER_ID, SYSTEM_FOLDER_NAME, SETTINGS_KEY, DB_VERSION } from '../config/constants';
-import { DEFAULT_SETTINGS, isSettings } from '../types/settings';
+import {
+  DEFAULT_SETTINGS,
+  isInterfaceFontFamily,
+  isInterfaceFontSize,
+  isPromptFontFamily,
+  isPromptFontSize,
+  isPromptLineSpacing,
+  normalizeSettings,
+} from '../types/settings';
 import { normalizeName } from '../utils/normalize';
 import { getDb } from './db';
 import packageJson from '../../package.json';
@@ -19,6 +27,14 @@ export const EXPORT_FORMAT = 'prompt-library-backup';
 export const EXPORT_VERSION = 1;
 export const CANONICAL_EXPORT_VERSION = 2;
 export const APP_VERSION = packageJson.version;
+
+const LEGACY_TYPOGRAPHY_DEFAULTS = {
+  interfaceFontFamily: 'system-sans',
+  interfaceFontSize: 16,
+  promptFontFamily: 'monospace',
+  promptFontSize: 14,
+  promptLineSpacing: 'normal',
+} as const;
 
 export interface V1ExportPayload {
   format: typeof EXPORT_FORMAT;
@@ -287,12 +303,41 @@ function validateSettings(obj: Record<string, unknown>, path: string): Settings 
     obj.lastBackupPreparedAt === undefined
       ? undefined
       : requireIsoTimestamp(obj, 'lastBackupPreparedAt', path);
+  const interfaceFontFamily =
+    obj.interfaceFontFamily === undefined ? DEFAULT_SETTINGS.interfaceFontFamily : obj.interfaceFontFamily;
+  if (!isInterfaceFontFamily(interfaceFontFamily)) {
+    throw new ImportValidationError(`${path}.interfaceFontFamily invalid`);
+  }
+  const interfaceFontSize =
+    obj.interfaceFontSize === undefined ? DEFAULT_SETTINGS.interfaceFontSize : obj.interfaceFontSize;
+  if (!isInterfaceFontSize(interfaceFontSize)) {
+    throw new ImportValidationError(`${path}.interfaceFontSize must be an integer from 13 through 20`);
+  }
+  const promptFontFamily =
+    obj.promptFontFamily === undefined ? DEFAULT_SETTINGS.promptFontFamily : obj.promptFontFamily;
+  if (!isPromptFontFamily(promptFontFamily)) {
+    throw new ImportValidationError(`${path}.promptFontFamily invalid`);
+  }
+  const promptFontSize = obj.promptFontSize === undefined ? DEFAULT_SETTINGS.promptFontSize : obj.promptFontSize;
+  if (!isPromptFontSize(promptFontSize)) {
+    throw new ImportValidationError(`${path}.promptFontSize must be an integer from 12 through 24`);
+  }
+  const promptLineSpacing =
+    obj.promptLineSpacing === undefined ? DEFAULT_SETTINGS.promptLineSpacing : obj.promptLineSpacing;
+  if (!isPromptLineSpacing(promptLineSpacing)) {
+    throw new ImportValidationError(`${path}.promptLineSpacing invalid`);
+  }
   return {
     schemaVersion: 1,
     theme: obj.theme,
     defaultSort: obj.defaultSort,
     viewMode: 'card',
     confirmBeforeDelete: requireBoolean(obj, 'confirmBeforeDelete', path),
+    interfaceFontFamily,
+    interfaceFontSize,
+    promptFontFamily,
+    promptFontSize,
+    promptLineSpacing,
     ...(rememberedVariableValues === undefined ? {} : { rememberedVariableValues }),
     ...(lastBackupPreparedAt === undefined ? {} : { lastBackupPreparedAt }),
   };
@@ -582,8 +627,14 @@ function compareIds(left: { id: string }, right: { id: string }): number {
 function stableSerialize(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map((entry) => stableSerialize(entry)).join(',')}]`;
   if (value && typeof value === 'object') {
+    const isSettingsObject =
+      'schemaVersion' in value && 'theme' in value && 'defaultSort' in value;
     const entries = Object.entries(value)
-      .filter(([, entryValue]) => entryValue !== undefined)
+      .filter(([key, entryValue]) => {
+        if (entryValue === undefined) return false;
+        if (!isSettingsObject || !(key in LEGACY_TYPOGRAPHY_DEFAULTS)) return true;
+        return entryValue !== LEGACY_TYPOGRAPHY_DEFAULTS[key as keyof typeof LEGACY_TYPOGRAPHY_DEFAULTS];
+      })
       .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0));
     return `{${entries.map(([key, entryValue]) => `${JSON.stringify(key)}:${stableSerialize(entryValue)}`).join(',')}}`;
   }
@@ -674,7 +725,7 @@ export async function exportLibrary(): Promise<V2ExportPayload> {
     db.getAll('bundles'),
     db.get('settings', SETTINGS_KEY),
   ]);
-  const settings = isSettings(storedSettings) ? storedSettings : DEFAULT_SETTINGS;
+  const settings = normalizeSettings(storedSettings);
   const data: V2ExportData = {
     prompts: storedPrompts.map(withPromptDefaults).sort(compareIds),
     folders: folders.slice().sort(compareIds),

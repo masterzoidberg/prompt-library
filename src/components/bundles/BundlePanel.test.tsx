@@ -72,6 +72,7 @@ describe('BundlePanel', () => {
 
     await user.click(screen.getByRole('button', { name: 'Next asset' }));
     expect(screen.getByRole('heading', { name: 'Second prompt' })).toBeInTheDocument();
+    expect(screen.getByText('Hello {{NAME}}').closest('pre')).toHaveClass('prompt-content');
     await user.click(screen.getByRole('button', { name: 'Open current asset' }));
     expect(onOpenPrompt).toHaveBeenCalledWith('prompt-2');
     await user.click(screen.getByRole('button', { name: 'Copy current asset' }));

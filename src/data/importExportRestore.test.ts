@@ -22,7 +22,25 @@ function clonePayload<T>(payload: T): T {
 }
 
 function normalizeExportedAt(payload: V2ExportPayload): V2ExportPayload {
-  return { ...payload, exportedAt: '<normalized>' };
+  return JSON.parse(JSON.stringify({ ...payload, exportedAt: '<normalized>' })) as V2ExportPayload;
+}
+
+function normalizeLegacyTypographyDefaults(payload: V2ExportPayload): V2ExportPayload {
+  const normalized = normalizeExportedAt(payload);
+  return {
+    ...normalized,
+    data: {
+      ...normalized.data,
+      settings: {
+        interfaceFontFamily: 'system-sans',
+        interfaceFontSize: 16,
+        promptFontFamily: 'monospace',
+        promptFontSize: 14,
+        promptLineSpacing: 'normal',
+        ...normalized.data.settings,
+      },
+    },
+  };
 }
 
 beforeEach(async () => {
@@ -56,8 +74,18 @@ describe('staged restore', () => {
     const before = await exportLibrary();
 
     const prepared = await prepareRestore(libraryFixture);
+    const preparedPayload = prepared.payload as V2ExportPayload;
 
-    expect(prepared.payload).toEqual(libraryFixture);
+    expect(normalizeExportedAt(preparedPayload)).toEqual(
+      normalizeLegacyTypographyDefaults(libraryFixture),
+    );
+    expect(preparedPayload.data.settings).toMatchObject({
+      interfaceFontFamily: 'system-sans',
+      interfaceFontSize: 16,
+      promptFontFamily: 'monospace',
+      promptFontSize: 14,
+      promptLineSpacing: 'normal',
+    });
     expect(prepared.preRestoreBackup.formatVersion).toBe(2);
     expect(prepared.preRestoreBackup.checksum).toMatch(/^[0-9a-f]{64}$/);
     expect(normalizeExportedAt(await exportLibrary())).toEqual(normalizeExportedAt(before));
@@ -79,7 +107,7 @@ describe('staged restore', () => {
 
     await restoreLibrary(prepared, acknowledgement);
 
-    expect(normalizeExportedAt(await exportLibrary())).toEqual(normalizeExportedAt(libraryFixture));
+    expect(normalizeExportedAt(await exportLibrary())).toEqual(normalizeLegacyTypographyDefaults(libraryFixture));
   });
 
   it('keeps v1 restore compatibility while verifying the resulting canonical v2 data', async () => {

@@ -132,7 +132,7 @@ export function BundleDialog({ open, onOpenChange, prompts, initial, onSubmit }:
                   />
                   <span className="min-w-0">
                     <span className="block truncate font-medium">{prompt.title}</span>
-                    <span className="block truncate text-xs text-neutral-500">{prompt.content}</span>
+                    <span className="prompt-content block truncate text-neutral-500">{prompt.content}</span>
                   </span>
                 </label>
               ))}

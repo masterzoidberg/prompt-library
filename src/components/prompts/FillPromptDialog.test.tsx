@@ -58,6 +58,7 @@ describe('FillPromptDialog', () => {
     expect(screen.getByRole('heading', { name: 'Preview' }).nextElementSibling?.textContent).toBe(
       'Hello Ada\nRole: writer',
     );
+    expect(screen.getByRole('heading', { name: 'Preview' }).nextElementSibling).toHaveClass('prompt-content');
 
     await user.clear(screen.getByLabelText('Value for NAME'));
     await user.type(screen.getByLabelText('Value for NAME'), 'Grace');

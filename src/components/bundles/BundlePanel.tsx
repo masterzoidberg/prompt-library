@@ -118,7 +118,7 @@ export function BundlePanel({
                   </Button>
                 </div>
               </div>
-              <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md border border-neutral-200 bg-white p-3 font-mono text-sm dark:border-neutral-800 dark:bg-neutral-950">
+              <pre className="prompt-content max-h-48 overflow-auto whitespace-pre-wrap rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950">
                 {currentPrompt.content}
               </pre>
               <div className="flex flex-wrap gap-2">

@@ -4,6 +4,21 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontSize: {
+        xs: ['var(--ui-text-xs)', { lineHeight: '1rem' }],
+        sm: ['var(--ui-text-sm)', { lineHeight: '1.25rem' }],
+        base: ['var(--ui-text-base)', { lineHeight: '1.5rem' }],
+        lg: ['var(--ui-text-lg)', { lineHeight: '1.75rem' }],
+        xl: ['var(--ui-text-xl)', { lineHeight: '1.75rem' }],
+        '2xl': ['var(--ui-text-2xl)', { lineHeight: '2rem' }],
+        '3xl': ['var(--ui-text-3xl)', { lineHeight: '2.25rem' }],
+        '4xl': ['var(--ui-text-4xl)', { lineHeight: '2.5rem' }],
+        '5xl': ['var(--ui-text-5xl)', { lineHeight: '1' }],
+        '6xl': ['var(--ui-text-6xl)', { lineHeight: '1' }],
+        '7xl': ['var(--ui-text-7xl)', { lineHeight: '1' }],
+        '8xl': ['var(--ui-text-8xl)', { lineHeight: '1' }],
+        '9xl': ['var(--ui-text-9xl)', { lineHeight: '1' }],
+      },
       colors: {
         accent: {
           50: '#eef2ff',
