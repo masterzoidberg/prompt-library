@@ -76,10 +76,10 @@ export function Dialog({
       }}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogPrimitive.Overlay className="fixed inset-x-0 top-0 z-40 h-[var(--app-viewport-height)] bg-black/40 backdrop-blur-[1px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <DialogPrimitive.Content
           aria-modal="true"
-          className={`fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] ${maxWidthClass} max-h-[calc(100vh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-lg border border-neutral-200 bg-white p-4 shadow-xl dark:border-neutral-800 dark:bg-neutral-950 sm:p-6`}
+          className={`fixed left-1/2 top-[var(--app-viewport-center-y)] z-50 w-[calc(100vw-2rem-env(safe-area-inset-left)-env(safe-area-inset-right))] ${maxWidthClass} max-h-[calc(var(--app-viewport-height)-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-lg border border-neutral-200 bg-white p-4 shadow-xl dark:border-neutral-800 dark:bg-neutral-950 sm:p-6`}
           onOpenAutoFocus={(e) => {
             const target = e.currentTarget as HTMLElement;
             const active = document.activeElement;
@@ -125,7 +125,7 @@ export function Dialog({
             </div>
             <DialogPrimitive.Close
               aria-label="Close dialog"
-              className="rounded-md p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              className="min-h-11 min-w-11 rounded-md p-3 text-neutral-500 hover:bg-neutral-100 lg:min-h-0 lg:min-w-0 lg:p-1 dark:hover:bg-neutral-800"
             >
               <X className="h-5 w-5" />
             </DialogPrimitive.Close>

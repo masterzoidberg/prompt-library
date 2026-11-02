@@ -106,7 +106,7 @@ export function TagCombobox({
           : 'No tags selected.'}
       </span>
       <div
-        className="flex min-h-10 flex-wrap items-center gap-1 rounded-md border border-neutral-300 bg-white p-1.5 focus-within:border-accent-500 focus-within:outline-none dark:border-neutral-700 dark:bg-neutral-900"
+        className="flex min-h-11 flex-wrap items-center gap-1 rounded-md border border-neutral-300 bg-white p-1.5 focus-within:border-accent-500 focus-within:outline-none lg:min-h-10 dark:border-neutral-700 dark:bg-neutral-900"
       >
         {selectedIds.map((id) => {
           const tag = tags.find((item) => item.id === id);
@@ -167,7 +167,7 @@ export function TagCombobox({
             setActiveIndex(-1);
           }}
           onKeyDown={handleKeyDown}
-          className="h-8 min-w-[7rem] flex-1 border-0 bg-transparent px-1 text-sm text-neutral-900 placeholder-neutral-400 outline-none focus:ring-0 dark:text-neutral-100 dark:placeholder-neutral-500"
+          className="h-10 min-w-[7rem] flex-1 border-0 bg-transparent px-1 text-sm text-neutral-900 placeholder-neutral-400 outline-none focus:ring-0 lg:h-8 dark:text-neutral-100 dark:placeholder-neutral-500"
         />
       </div>
       {open ? (
@@ -185,7 +185,7 @@ export function TagCombobox({
                     tabIndex={-1}
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={() => selectOption(index)}
-                    className={`flex min-h-9 w-full items-center justify-between gap-3 rounded px-2 text-left text-sm outline-none ${
+                    className={`flex min-h-11 w-full items-center justify-between gap-3 rounded px-2 text-left text-sm outline-none lg:min-h-9 ${
                       index === activeIndex
                         ? 'bg-neutral-100 dark:bg-neutral-800'
                         : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
@@ -207,7 +207,7 @@ export function TagCombobox({
                   tabIndex={-1}
                   onMouseEnter={() => setActiveIndex(matchingTags.length)}
                   onClick={() => selectOption(matchingTags.length)}
-                  className={`flex min-h-9 w-full items-center gap-2 rounded px-2 text-left text-sm outline-none ${
+                  className={`flex min-h-11 w-full items-center gap-2 rounded px-2 text-left text-sm outline-none lg:min-h-9 ${
                     activeIndex === matchingTags.length
                       ? 'bg-neutral-100 dark:bg-neutral-800'
                       : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'

@@ -59,7 +59,7 @@ export function PromptDetailDialog({
       onOpenChange={onOpenChange}
       title={`Prompt detail: ${prompt.title}`}
       description="Read the complete authored prompt and its library context."
-      maxWidthClass="max-h-[calc(100vh-2rem)] max-w-4xl overflow-y-auto"
+      maxWidthClass="max-w-4xl"
     >
       <div className="space-y-5">
         <div className="flex flex-wrap gap-2" aria-label="Prompt actions">

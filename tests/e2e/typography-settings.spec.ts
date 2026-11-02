@@ -94,7 +94,7 @@ async function saveTypography(page: Page, viewport: (typeof cases)[number]) {
   await expect(settings).not.toBeVisible();
 
   if (viewport.width < 1024) {
-    await page.getByRole('dialog', { name: 'Navigation' }).getByRole('button', { name: 'Close navigation' }).click();
+    await expect(page.getByRole('dialog', { name: 'Navigation' })).not.toBeVisible();
   }
 }
 

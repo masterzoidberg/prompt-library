@@ -172,7 +172,7 @@ export function VersionHistoryDialog({
       onOpenChange={onOpenChange}
       title={`Version history: ${prompt.title}`}
       description="Compare saved authored snapshots. Organizing, favorite, and usage changes are not versioned."
-      maxWidthClass="max-h-[calc(100vh-2rem)] max-w-5xl overflow-y-auto"
+      maxWidthClass="max-w-5xl"
     >
       {loading ? <p role="status" className="text-sm text-neutral-500">Loading versions…</p> : null}
       <p className="rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">

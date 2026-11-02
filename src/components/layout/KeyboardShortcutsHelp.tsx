@@ -32,7 +32,7 @@ export function KeyboardShortcutsHelp() {
         onOpenChange={setOpen}
         title="Keyboard shortcuts"
         description="Shortcuts are available while Prompt Library is active."
-        maxWidthClass="max-h-[calc(100vh-2rem)] max-w-2xl overflow-y-auto"
+        maxWidthClass="max-w-2xl"
       >
         <dl className="grid gap-2 sm:grid-cols-2">
           {shortcuts.map(([keys, description]) => (

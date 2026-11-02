@@ -62,7 +62,8 @@ describe('Dialog', () => {
     );
 
     expect(screen.getByRole('dialog', { name: 'Test dialog' })).toHaveClass(
-      'max-h-[calc(100vh-2rem)]',
+      'top-[var(--app-viewport-center-y)]',
+      'max-h-[calc(var(--app-viewport-height)-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))]',
       'overflow-y-auto',
       'overscroll-contain',
     );

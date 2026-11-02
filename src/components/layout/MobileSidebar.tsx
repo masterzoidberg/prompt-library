@@ -77,13 +77,13 @@ export function MobileSidebar({ open, onClose, children }: MobileSidebarProps) {
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-40 overflow-hidden lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
+    <div className="fixed inset-x-0 top-0 z-40 h-[var(--app-viewport-height)] overflow-hidden lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
       <div className="absolute inset-0 bg-black/40" aria-hidden="true" onClick={onClose} />
       <div
         ref={panelRef}
-        className="absolute inset-y-0 left-0 flex w-72 max-w-[80vw] flex-col overflow-y-auto overscroll-contain bg-neutral-50 shadow-xl dark:bg-neutral-950"
+        className="absolute inset-y-0 left-0 flex w-72 max-w-[80vw] flex-col overflow-y-auto overscroll-contain bg-neutral-50 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] shadow-xl dark:bg-neutral-950"
       >
-        <div className="absolute right-2 top-2">
+        <div className="absolute right-2 top-[calc(env(safe-area-inset-top)+0.5rem)]">
           <Button size="icon" variant="ghost" aria-label="Close navigation" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>

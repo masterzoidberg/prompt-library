@@ -4,6 +4,8 @@
 
 @layer base {
   :root {
+    --app-viewport-height: 100vh;
+    --app-viewport-center-y: 50vh;
     color-scheme: light dark;
     --interface-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --interface-font-size: 16px;
@@ -23,6 +25,13 @@
     --prompt-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
     --prompt-font-size: 14px;
     --prompt-line-height: 1.5;
+  }
+
+  @supports (height: 100dvh) {
+    :root {
+      --app-viewport-height: 100dvh;
+      --app-viewport-center-y: 50dvh;
+    }
   }
 
   html {
