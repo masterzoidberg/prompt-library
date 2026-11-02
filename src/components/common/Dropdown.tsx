@@ -38,7 +38,7 @@ export function DropdownItem({ onSelect, children, destructive, disabled }: Drop
       onSelect={() => {
         void onSelect?.();
       }}
-      className={`flex w-full cursor-pointer select-none items-center gap-2 rounded px-2 py-1.5 text-sm outline-none data-[highlighted]:bg-neutral-100 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 dark:data-[highlighted]:bg-neutral-800 ${
+      className={`flex min-h-11 w-full cursor-pointer select-none items-center gap-2 rounded px-2 py-3 text-sm outline-none data-[highlighted]:bg-neutral-100 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 lg:min-h-0 lg:py-1.5 dark:data-[highlighted]:bg-neutral-800 ${
         destructive ? 'text-red-600 dark:text-red-400' : 'text-neutral-800 dark:text-neutral-100'
       }`}
     >

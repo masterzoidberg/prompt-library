@@ -75,10 +75,10 @@ export function BundlePanel({
   };
 
   return (
-    <div className="space-y-5 p-4">
+    <div className="min-w-0 space-y-5 p-3 sm:p-4">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold">{bundle.name}</h2>
+          <h2 className="break-words text-xl font-semibold [overflow-wrap:anywhere]">{bundle.name}</h2>
           {bundle.description ? <p className="mt-1 text-sm text-neutral-500">{bundle.description}</p> : null}
           <p className="mt-1 text-xs text-neutral-500">
             {members.length} of {bundle.promptIds.length} bundle {bundle.promptIds.length === 1 ? 'item' : 'items'} available
@@ -138,7 +138,7 @@ export function BundlePanel({
           ) : null}
 
           <section aria-labelledby="bundle-order-heading" className="space-y-2">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 id="bundle-order-heading" className="text-sm font-semibold">Bundle order</h3>
               <span className="text-xs text-neutral-500">Use the arrow buttons to reorder</span>
             </div>
@@ -147,7 +147,7 @@ export function BundlePanel({
                 const index = bundle.promptIds.indexOf(prompt.id);
                 const selected = prompt.id === currentPromptId;
                 return (
-                  <li key={prompt.id} className="flex items-center gap-2 rounded-md border border-neutral-200 p-2 dark:border-neutral-800" aria-current={selected ? 'step' : undefined}>
+                  <li key={prompt.id} className="flex min-w-0 items-center gap-2 rounded-md border border-neutral-200 p-2 dark:border-neutral-800" aria-current={selected ? 'step' : undefined}>
                     <button
                       type="button"
                       aria-label={`Select bundle item ${index + 1}: ${prompt.title}`}
@@ -156,7 +156,7 @@ export function BundlePanel({
                       className="min-w-0 flex-1 rounded px-2 py-1 text-left text-sm hover:bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 dark:hover:bg-neutral-900"
                     >
                       <span className="mr-2 text-xs text-neutral-500">{index + 1}</span>
-                      <span className="font-medium">{prompt.title}</span>
+                      <span className="font-medium break-words [overflow-wrap:anywhere]">{prompt.title}</span>
                     </button>
                     <Button size="icon" aria-label={`Move bundle item ${index + 1} up`} onClick={() => moveMember(prompt.id, -1)} disabled={busy || index <= 0}>
                       <ArrowUp className="h-4 w-4" />

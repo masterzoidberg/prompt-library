@@ -105,7 +105,7 @@ export function CommandPalette() {
       onOpenChange={(open) => (open ? setPaletteOpen(true) : close())}
       title="Command palette"
       description="Search your library and choose an action without leaving the keyboard."
-      maxWidthClass="max-h-[calc(100vh-2rem)] max-w-3xl overflow-y-auto"
+      maxWidthClass="max-w-3xl"
     >
       <div className="space-y-3">
         <div className="relative">

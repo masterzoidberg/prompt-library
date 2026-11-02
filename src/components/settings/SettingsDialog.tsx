@@ -76,7 +76,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             id="settings-theme"
             value={theme}
             onChange={(e) => setTheme(e.target.value as typeof theme)}
-            className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+            className="h-11 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900 lg:h-10"
           >
             <option value="system">System</option>
             <option value="light">Light</option>
@@ -92,7 +92,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             id="settings-sort"
             value={sort}
             onChange={(e) => setSort(e.target.value as typeof sort)}
-            className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+            className="h-11 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900 lg:h-10"
           >
             <option value="recently-updated">Recently updated</option>
             <option value="recently-created">Recently created</option>
@@ -112,7 +112,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 id="settings-interface-font"
                 value={interfaceFontFamily}
                 onChange={(event) => setInterfaceFontFamily(event.target.value as typeof interfaceFontFamily)}
-                className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+                className="h-11 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900 lg:h-10"
               >
                 <option value="system-sans">System Sans</option>
                 <option value="serif">Serif</option>
@@ -133,7 +133,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   step={1}
                   value={interfaceFontSize}
                   onChange={(event) => setInterfaceFontSize(Number(event.target.value))}
-                  className="min-w-0 flex-1 accent-accent-600"
+                  className="h-11 min-w-0 flex-1 accent-accent-600"
                 />
                 <output id="settings-interface-size-value" htmlFor="settings-interface-size" className="w-12 text-right text-sm tabular-nums">
                   {interfaceFontSize}px
@@ -149,7 +149,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 id="settings-prompt-font"
                 value={promptFontFamily}
                 onChange={(event) => setPromptFontFamily(event.target.value as typeof promptFontFamily)}
-                className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+                className="h-11 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900 lg:h-10"
               >
                 <option value="same-as-interface">Same as interface</option>
                 <option value="system-sans">System Sans</option>
@@ -171,7 +171,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   step={1}
                   value={promptFontSize}
                   onChange={(event) => setPromptFontSize(Number(event.target.value))}
-                  className="min-w-0 flex-1 accent-accent-600"
+                  className="h-11 min-w-0 flex-1 accent-accent-600"
                 />
                 <output id="settings-prompt-size-value" htmlFor="settings-prompt-size" className="w-12 text-right text-sm tabular-nums">
                   {promptFontSize}px
@@ -187,7 +187,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 id="settings-prompt-spacing"
                 value={promptLineSpacing}
                 onChange={(event) => setPromptLineSpacing(event.target.value as typeof promptLineSpacing)}
-                className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+                className="h-11 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900 lg:h-10"
               >
                 <option value="compact">Compact</option>
                 <option value="normal">Normal</option>

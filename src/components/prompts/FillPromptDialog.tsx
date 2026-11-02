@@ -74,7 +74,7 @@ export function FillPromptDialog({ open, onOpenChange, prompt, onCopy }: FillPro
       onOpenChange={onOpenChange}
       title={`Fill variables: ${prompt.title}`}
       description="Fill values for this copy only. The saved prompt stays unchanged."
-      maxWidthClass="max-h-[calc(100vh-2rem)] max-w-2xl overflow-y-auto"
+      maxWidthClass="max-w-2xl"
     >
       <div className="space-y-4">
         {variables.length > 0 ? (

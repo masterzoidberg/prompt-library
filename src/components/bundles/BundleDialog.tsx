@@ -82,7 +82,7 @@ export function BundleDialog({ open, onOpenChange, prompts, initial, onSubmit }:
       onOpenChange={onOpenChange}
       title={initial ? 'Edit bundle' : 'New bundle'}
       description="Group prompts into an ordered sequence for repeatable work."
-      maxWidthClass="max-h-[calc(100vh-2rem)] max-w-2xl overflow-y-auto"
+      maxWidthClass="max-w-2xl"
     >
       <form onSubmit={(event) => void handleSubmit(event)} className="space-y-4">
         <div>
@@ -112,15 +112,15 @@ export function BundleDialog({ open, onOpenChange, prompts, initial, onSubmit }:
           />
         </div>
 
-        <fieldset className="space-y-2">
+        <fieldset className="min-w-0 space-y-2">
           <legend className="text-sm font-semibold">Prompts in this bundle</legend>
           {prompts.length > 0 ? (
-            <div className="max-h-64 space-y-1 overflow-y-auto rounded-md border border-neutral-300 p-2 dark:border-neutral-700">
+            <div className="max-h-64 min-w-0 max-w-full space-y-1 overflow-x-hidden overflow-y-auto rounded-md border border-neutral-300 p-2 dark:border-neutral-700">
               {prompts.map((prompt, index) => (
                 <label
                   key={prompt.id}
                   htmlFor={`bundle-prompt-${prompt.id}`}
-                  className="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  className="flex min-h-11 w-full min-w-0 cursor-pointer items-start gap-2 rounded-md px-2 py-2.5 text-sm hover:bg-neutral-100 lg:min-h-0 lg:py-1.5 dark:hover:bg-neutral-800"
                 >
                   <input
                     id={`bundle-prompt-${prompt.id}`}
@@ -128,9 +128,9 @@ export function BundleDialog({ open, onOpenChange, prompts, initial, onSubmit }:
                     aria-label={`Include prompt ${index + 1}: ${prompt.title}`}
                     checked={selectedIds.has(prompt.id)}
                     onChange={() => togglePrompt(prompt.id)}
-                    className="mt-0.5 h-4 w-4 accent-accent-600"
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-accent-600"
                   />
-                  <span className="min-w-0">
+                  <span className="min-w-0 flex-1 overflow-hidden">
                     <span className="block truncate font-medium">{prompt.title}</span>
                     <span className="prompt-content block truncate text-neutral-500">{prompt.content}</span>
                   </span>

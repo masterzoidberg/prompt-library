@@ -41,17 +41,18 @@ export function TopBar({ onToggleSidebar }: TopBarProps) {
   };
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-neutral-200 bg-white px-3 dark:border-neutral-800 dark:bg-neutral-900">
+    <header className="grid shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 border-b border-neutral-200 bg-white pb-2 pl-[calc(env(safe-area-inset-left)+0.75rem)] pr-[calc(env(safe-area-inset-right)+0.75rem)] pt-[calc(env(safe-area-inset-top)+0.5rem)] dark:border-neutral-800 dark:bg-neutral-900 md:flex md:h-14 md:gap-2 md:px-3 md:py-0">
       <Button
         variant="ghost"
         size="icon"
         aria-label="Open navigation"
-        className="lg:hidden"
+        className="col-start-1 row-start-1 lg:hidden"
         onClick={onToggleSidebar}
       >
         <Menu className="h-5 w-5" />
       </Button>
-      <div className="relative flex-1 max-w-xl">
+      <h1 className="col-start-2 row-start-1 min-w-0 truncate text-base font-semibold md:hidden">Prompt Library</h1>
+      <div className="relative col-span-3 row-start-2 min-w-0 md:col-auto md:row-auto md:flex-1 md:max-w-xl">
         <Search
           aria-hidden="true"
           className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
@@ -69,49 +70,55 @@ export function TopBar({ onToggleSidebar }: TopBarProps) {
           }}
         />
       </div>
-      <Dropdown
-        trigger={
-          <Button variant="ghost" aria-label="Filter prompts">
-            <Filter className="h-4 w-4" />
-            <span className="hidden sm:inline">{metadataFilterLabel ?? 'Filter'}</span>
-          </Button>
-        }
-      >
-        <DropdownLabel>Filter by type</DropdownLabel>
-        {ASSET_TYPES.map((type) => (
-          <DropdownItem key={type} onSelect={() => setView({ kind: 'type', type })}>
-            {ASSET_TYPE_LABELS[type]}
-          </DropdownItem>
-        ))}
-        <DropdownLabel>Filter by target tool</DropdownLabel>
-        {TARGET_TOOLS.map((targetTool) => (
-          <DropdownItem key={targetTool} onSelect={() => setView({ kind: 'target-tool', targetTool })}>
-            {TARGET_TOOL_LABELS[targetTool]}
-          </DropdownItem>
-        ))}
-        {metadataFilterLabel ? (
-          <DropdownItem onSelect={() => setView({ kind: 'all' })}>Clear filter</DropdownItem>
-        ) : null}
-      </Dropdown>
-      <Dropdown
-        trigger={
-          <Button variant="ghost" aria-label="Change sort order">
-            <ArrowUpDown className="h-4 w-4" />
-            <span className="hidden sm:inline">{SORT_LABELS[sort]}</span>
-          </Button>
-        }
-      >
-        <DropdownLabel>Sort by</DropdownLabel>
-        {(Object.entries(SORT_LABELS) as [SortKey, string][]).map(([key, label]) => (
-          <DropdownItem key={key} onSelect={() => handleSortChange(key)}>
-            <span className={sort === key ? 'font-semibold text-accent-700 dark:text-accent-300' : ''}>
-              {label}
-            </span>
-          </DropdownItem>
-        ))}
-      </Dropdown>
-      <KeyboardShortcutsHelp />
-      <div className="ml-auto">
+      <div className="col-span-2 row-start-3 flex items-center gap-2 md:contents">
+        <Dropdown
+          trigger={
+            <Button variant="ghost" aria-label="Filter prompts">
+              <Filter className="h-4 w-4" />
+              <span className="md:hidden">Filter</span>
+              <span className="hidden md:inline">{metadataFilterLabel ?? 'Filter'}</span>
+            </Button>
+          }
+        >
+          <DropdownLabel>Filter by type</DropdownLabel>
+          {ASSET_TYPES.map((type) => (
+            <DropdownItem key={type} onSelect={() => setView({ kind: 'type', type })}>
+              {ASSET_TYPE_LABELS[type]}
+            </DropdownItem>
+          ))}
+          <DropdownLabel>Filter by target tool</DropdownLabel>
+          {TARGET_TOOLS.map((targetTool) => (
+            <DropdownItem key={targetTool} onSelect={() => setView({ kind: 'target-tool', targetTool })}>
+              {TARGET_TOOL_LABELS[targetTool]}
+            </DropdownItem>
+          ))}
+          {metadataFilterLabel ? (
+            <DropdownItem onSelect={() => setView({ kind: 'all' })}>Clear filter</DropdownItem>
+          ) : null}
+        </Dropdown>
+        <Dropdown
+          trigger={
+            <Button variant="ghost" aria-label="Change sort order">
+              <ArrowUpDown className="h-4 w-4" />
+              <span className="md:hidden">Sort</span>
+              <span className="hidden md:inline">{SORT_LABELS[sort]}</span>
+            </Button>
+          }
+        >
+          <DropdownLabel>Sort by</DropdownLabel>
+          {(Object.entries(SORT_LABELS) as [SortKey, string][]).map(([key, label]) => (
+            <DropdownItem key={key} onSelect={() => handleSortChange(key)}>
+              <span className={sort === key ? 'font-semibold text-accent-700 dark:text-accent-300' : ''}>
+                {label}
+              </span>
+            </DropdownItem>
+          ))}
+        </Dropdown>
+      </div>
+      <div className="hidden md:block">
+        <KeyboardShortcutsHelp />
+      </div>
+      <div className="col-start-3 row-start-3 ml-auto md:ml-auto">
         <Button variant="primary" onClick={() => setDialog({ kind: 'new-prompt' })}>
           <Plus className="h-4 w-4" />
           <span>New prompt</span>

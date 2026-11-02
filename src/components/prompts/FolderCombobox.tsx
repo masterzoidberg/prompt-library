@@ -144,7 +144,7 @@ export function FolderCombobox({ folders, selectedId, stagedName, onSelect, onSt
                   tabIndex={-1}
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => selectOption(index)}
-                  className={`flex min-h-9 w-full items-center rounded px-2 text-left text-sm outline-none ${
+                  className={`flex min-h-11 w-full items-center rounded px-2 text-left text-sm outline-none lg:min-h-9 ${
                     index === activeIndex
                       ? 'bg-neutral-100 dark:bg-neutral-800'
                       : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
@@ -164,7 +164,7 @@ export function FolderCombobox({ folders, selectedId, stagedName, onSelect, onSt
                   tabIndex={-1}
                   onMouseEnter={() => setActiveIndex(matchingFolders.length)}
                   onClick={() => selectOption(matchingFolders.length)}
-                  className={`flex min-h-9 w-full items-center gap-2 rounded px-2 text-left text-sm outline-none ${
+                  className={`flex min-h-11 w-full items-center gap-2 rounded px-2 text-left text-sm outline-none lg:min-h-9 ${
                     activeIndex === matchingFolders.length
                       ? 'bg-neutral-100 dark:bg-neutral-800'
                       : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Folder, Tag as TagIcon, Star, Inbox, Clock, TrendingUp, ListOrdered, Settings as SettingsIcon, Plus, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { useFolders } from '../../hooks/useFolders';
 import { usePrompts } from '../../hooks/usePrompts';
@@ -9,7 +9,7 @@ import { SYSTEM_FOLDER_ID } from '../../config/constants';
 import { Button } from '../common/Button';
 import { Dropdown, DropdownItem } from '../common/Dropdown';
 
-export function Sidebar() {
+export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { folders } = useFolders();
   const { prompts } = usePrompts();
   const { tags } = useTags();
@@ -46,25 +46,25 @@ export function Sidebar() {
             icon={<Inbox className="h-4 w-4" />}
             label="All Prompts"
             active={view.kind === 'all'}
-            onClick={() => setView({ kind: 'all' })}
+            onClick={() => { setView({ kind: 'all' }); onNavigate?.(); }}
           />
           <NavItem
             icon={<Star className="h-4 w-4" />}
             label="Favorites"
             active={view.kind === 'favorites'}
-            onClick={() => setView({ kind: 'favorites' })}
+            onClick={() => { setView({ kind: 'favorites' }); onNavigate?.(); }}
           />
           <NavItem
             icon={<Clock className="h-4 w-4" />}
             label="Recent"
             active={view.kind === 'recent'}
-            onClick={() => setView({ kind: 'recent' })}
+            onClick={() => { setView({ kind: 'recent' }); onNavigate?.(); }}
           />
           <NavItem
             icon={<TrendingUp className="h-4 w-4" />}
             label="Most Used"
             active={view.kind === 'most-used'}
-            onClick={() => setView({ kind: 'most-used' })}
+            onClick={() => { setView({ kind: 'most-used' }); onNavigate?.(); }}
           />
         </SidebarSection>
 
@@ -89,9 +89,9 @@ export function Sidebar() {
                 isSystem={f.id === SYSTEM_FOLDER_ID}
                 active={view.kind === 'folder' && view.folderId === f.id}
                 count={folderCounts.get(f.id) ?? 0}
-                onClick={() => setView({ kind: 'folder', folderId: f.id })}
-                onRename={() => setDialog({ kind: 'rename-folder', folderId: f.id })}
-                onDelete={() => setDialog({ kind: 'delete-folder', folderId: f.id })}
+                onClick={() => { setView({ kind: 'folder', folderId: f.id }); onNavigate?.(); }}
+                onRename={() => { setDialog({ kind: 'rename-folder', folderId: f.id }); onNavigate?.(); }}
+                onDelete={() => { setDialog({ kind: 'delete-folder', folderId: f.id }); onNavigate?.(); }}
               />
             ))}
         </SidebarSection>
@@ -116,9 +116,9 @@ export function Sidebar() {
               <TagRow
                 key={t.id}
                 name={t.name}
-                onClick={() => setView({ kind: 'tag', tagId: t.id })}
-                onRename={() => setDialog({ kind: 'rename-tag', tagId: t.id })}
-                onDelete={() => setDialog({ kind: 'delete-tag', tagId: t.id })}
+                onClick={() => { setView({ kind: 'tag', tagId: t.id }); onNavigate?.(); }}
+                onRename={() => { setDialog({ kind: 'rename-tag', tagId: t.id }); onNavigate?.(); }}
+                onDelete={() => { setDialog({ kind: 'delete-tag', tagId: t.id }); onNavigate?.(); }}
               />
             ))
           )}
@@ -145,9 +145,9 @@ export function Sidebar() {
                 key={bundle.id}
                 bundle={bundle}
                 active={view.kind === 'bundle' && view.bundleId === bundle.id}
-                onClick={() => setView({ kind: 'bundle', bundleId: bundle.id })}
-                onEdit={() => setDialog({ kind: 'edit-bundle', bundleId: bundle.id })}
-                onDelete={() => setDialog({ kind: 'delete-bundle', bundleId: bundle.id })}
+                onClick={() => { setView({ kind: 'bundle', bundleId: bundle.id }); onNavigate?.(); }}
+                onEdit={() => { setDialog({ kind: 'edit-bundle', bundleId: bundle.id }); onNavigate?.(); }}
+                onDelete={() => { setDialog({ kind: 'delete-bundle', bundleId: bundle.id }); onNavigate?.(); }}
               />
             ))
           )}
@@ -158,7 +158,7 @@ export function Sidebar() {
         <Button
           variant="ghost"
           className="w-full justify-start"
-          onClick={() => setDialog({ kind: 'settings' })}
+          onClick={() => { onNavigate?.(); setDialog({ kind: 'settings' }); }}
         >
           <SettingsIcon className="h-4 w-4" />
           <span>Settings</span>
@@ -205,7 +205,7 @@ function NavItem({
         type="button"
         onClick={onClick}
         aria-current={active ? 'page' : undefined}
-        className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
+        className={`flex min-h-11 w-full items-center gap-2 rounded-md px-2 py-2.5 text-sm transition-colors lg:min-h-0 lg:py-1.5 ${
           active
             ? 'bg-accent-100 text-accent-900 dark:bg-accent-900/30 dark:text-accent-100'
             : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800'
@@ -237,26 +237,21 @@ function FolderRow({
   onRename: () => void;
   onDelete: () => void;
 }) {
-  const [hover, setHover] = useState(false);
   return (
-    <li
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      className="group"
-    >
+    <li className="group">
       <div className="flex items-center">
         <button
           type="button"
           onClick={onClick}
           aria-current={active ? 'page' : undefined}
-          className={`flex flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
+          className={`flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-2.5 text-sm transition-colors lg:min-h-0 lg:py-1.5 ${
             active
               ? 'bg-accent-100 text-accent-900 dark:bg-accent-900/30 dark:text-accent-100'
               : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800'
           }`}
         >
           <Folder className="h-4 w-4" />
-          <span className="truncate">{name}</span>
+          <span className="min-w-0 break-words [overflow-wrap:anywhere]">{name}</span>
         </button>
         <span
           aria-label={`${count} ${count === 1 ? 'prompt' : 'prompts'}`}
@@ -264,13 +259,13 @@ function FolderRow({
         >
           {count}
         </span>
-        {!isSystem && (hover || active) ? (
+        {!isSystem ? (
           <Dropdown
             trigger={
               <button
                 type="button"
                 aria-label={`Folder options for ${name}`}
-                className="rounded-md p-1 text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                className={`min-h-11 min-w-11 rounded-md p-3.5 text-neutral-500 hover:bg-neutral-200 lg:min-h-0 lg:min-w-0 lg:p-1 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-visible:opacity-100 dark:hover:bg-neutral-700 ${active ? 'lg:opacity-100' : ''}`}
                 onClick={(e) => e.stopPropagation()}
               >
                 <MoreHorizontal className="h-4 w-4" />
@@ -307,7 +302,7 @@ function TagRow({
         <button
           type="button"
           onClick={onClick}
-          className="flex flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
+          className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-2.5 text-sm text-neutral-700 transition-colors lg:min-h-0 lg:py-1.5 dark:text-neutral-200 dark:hover:bg-neutral-800"
         >
           <TagIcon className="h-4 w-4" />
           <span className="truncate">{name}</span>
@@ -317,7 +312,7 @@ function TagRow({
             <button
               type="button"
               aria-label={`Tag options for ${name}`}
-              className="rounded-md p-1 text-neutral-500 opacity-0 hover:bg-neutral-200 focus-visible:opacity-100 group-hover:opacity-100 dark:hover:bg-neutral-700"
+              className="min-h-11 min-w-11 rounded-md p-3.5 text-neutral-500 hover:bg-neutral-200 lg:min-h-0 lg:min-w-0 lg:p-1 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-visible:opacity-100 dark:hover:bg-neutral-700"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="h-4 w-4" />
@@ -356,14 +351,14 @@ function BundleRow({
           type="button"
           onClick={onClick}
           aria-current={active ? 'page' : undefined}
-          className={`flex flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
+          className={`flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-2.5 text-sm transition-colors lg:min-h-0 lg:py-1.5 ${
             active
               ? 'bg-accent-100 text-accent-900 dark:bg-accent-900/30 dark:text-accent-100'
               : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800'
           }`}
         >
           <ListOrdered className="h-4 w-4" />
-          <span className="truncate">{bundle.name}</span>
+          <span className="min-w-0 break-words [overflow-wrap:anywhere]">{bundle.name}</span>
         </button>
         <span
           aria-label={`${bundle.promptIds.length} ${bundle.promptIds.length === 1 ? 'prompt' : 'prompts'} in bundle`}
@@ -376,7 +371,7 @@ function BundleRow({
             <button
               type="button"
               aria-label={`Bundle options for ${bundle.name}`}
-              className="rounded-md p-1 text-neutral-500 opacity-0 hover:bg-neutral-200 focus-visible:opacity-100 group-hover:opacity-100 dark:hover:bg-neutral-700"
+              className="min-h-11 min-w-11 rounded-md p-3.5 text-neutral-500 hover:bg-neutral-200 lg:min-h-0 lg:min-w-0 lg:p-1 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-visible:opacity-100 dark:hover:bg-neutral-700"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="h-4 w-4" />
