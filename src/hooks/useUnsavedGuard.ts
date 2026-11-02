@@ -18,7 +18,3 @@ export function useUnsavedGuard(isDirty: boolean, message = 'Discard unsaved cha
     return () => window.removeEventListener('beforeunload', handler);
   }, [message]);
 }
-
-export function confirmDiscard(): boolean {
-  return window.confirm('Discard unsaved changes?');
-}

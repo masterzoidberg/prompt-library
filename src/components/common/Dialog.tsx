@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 
@@ -10,6 +10,9 @@ interface DialogProps {
   description?: ReactNode;
   children: ReactNode;
   maxWidthClass?: string;
+  stickyHeader?: boolean;
+  initialFocusRef?: RefObject<HTMLElement | null>;
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }
 
 const FOCUSABLE_SELECTOR = [
@@ -28,6 +31,9 @@ export function Dialog({
   description,
   children,
   maxWidthClass = 'max-w-lg',
+  stickyHeader = false,
+  initialFocusRef,
+  returnFocusRef,
 }: DialogProps) {
   const previousFocusRef = useRef<HTMLElement | null>(open ? getActiveElement() : null);
 
@@ -80,6 +86,11 @@ export function Dialog({
             if (!previousFocusRef.current && active instanceof HTMLElement && !target.contains(active)) {
               previousFocusRef.current = active;
             }
+            if (initialFocusRef?.current) {
+              e.preventDefault();
+              initialFocusRef.current.focus();
+              return;
+            }
             const dangerous = target.querySelector<HTMLElement>('[data-autofocus-unsafe="true"]');
             if (dangerous) {
               e.preventDefault();
@@ -91,10 +102,17 @@ export function Dialog({
           }}
           onCloseAutoFocus={(e) => {
             e.preventDefault();
-            restoreFocus();
+            if (returnFocusRef?.current) returnFocusRef.current.focus();
+            else restoreFocus();
           }}
         >
-          <div className="flex items-start justify-between gap-4 mb-4">
+          <div
+            className={`mb-4 flex items-start justify-between gap-4 ${
+              stickyHeader
+                ? 'sticky -top-4 z-20 -mx-4 -mt-4 bg-white px-4 pt-4 pb-1 dark:bg-neutral-950 sm:-top-6 sm:-mx-6 sm:-mt-6 sm:px-6 sm:pt-6'
+                : ''
+            }`}
+          >
             <div className="min-w-0">
               <DialogPrimitive.Title className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                 {title}

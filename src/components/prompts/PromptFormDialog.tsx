@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog } from '../common/Dialog';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
@@ -8,7 +8,7 @@ import { TagCombobox } from './TagCombobox';
 import { useFolders } from '../../hooks/useFolders';
 import { useTags } from '../../hooks/useTags';
 import { SYSTEM_FOLDER_ID } from '../../config/constants';
-import { confirmDiscard, useUnsavedGuard } from '../../hooks/useUnsavedGuard';
+import { useUnsavedGuard } from '../../hooks/useUnsavedGuard';
 import type { Prompt } from '../../types';
 import {
   ASSET_TYPES,
@@ -49,6 +49,9 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
   );
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
+  const keepEditingRef = useRef<HTMLButtonElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -65,31 +68,53 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
       setVariableDefaults({ ...initial?.variableDefaults });
       setError(null);
       setSubmitting(false);
+      setConfirmDiscardOpen(false);
     }
   }, [open, initial]);
 
-  const dirty =
-    title !== (initial?.title ?? '') ||
-    content !== (initial?.content ?? '') ||
-    description !== (initial?.description ?? '') ||
-    folderId !== (initial?.folderId ?? SYSTEM_FOLDER_ID) ||
-    newFolderName !== undefined ||
-    tagIds.join(',') !== (initial?.tagIds ?? []).join(',') ||
-    newTagNames.length > 0 ||
-    type !== (initial?.type ?? DEFAULT_ASSET_TYPE) ||
-    targetTools.join(',') !== (initial?.targetTools ?? []).join(',') ||
-    notes !== (initial?.notes ?? '') ||
-    JSON.stringify(variableDefaults) !== JSON.stringify(initial?.variableDefaults ?? {});
+  const currentFormState = serializeFormState({
+    title,
+    content,
+    description,
+    folderId,
+    newFolderName,
+    tagIds,
+    newTagNames,
+    type,
+    targetTools,
+    notes,
+    variableDefaults,
+  });
+  const initialFormState = serializeFormState({
+    title: initial?.title ?? '',
+    content: initial?.content ?? '',
+    description: initial?.description ?? '',
+    folderId: initial?.folderId ?? SYSTEM_FOLDER_ID,
+    newFolderName: undefined,
+    tagIds: initial?.tagIds ?? [],
+    newTagNames: [],
+    type: initial?.type ?? DEFAULT_ASSET_TYPE,
+    targetTools: initial?.targetTools ?? [],
+    notes: initial?.notes ?? '',
+    variableDefaults: initial?.variableDefaults ?? {},
+  });
+  const dirty = currentFormState !== initialFormState;
 
   const variables = useMemo(() => detectVariables(content), [content]);
 
-  useUnsavedGuard(dirty);
+  useUnsavedGuard(open && dirty);
 
   const handleClose = (next: boolean) => {
     if (!next && dirty) {
-      if (!confirmDiscard()) return;
+      setConfirmDiscardOpen(true);
+      return;
     }
     onOpenChange(next);
+  };
+
+  const discardChanges = () => {
+    setConfirmDiscardOpen(false);
+    onOpenChange(false);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -154,7 +179,8 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
       onOpenChange={handleClose}
       title={initial ? 'Edit prompt' : 'New prompt'}
       description={initial ? 'Update your prompt details.' : 'Create a reusable AI prompt.'}
-      maxWidthClass="max-h-[calc(100vh-2rem)] max-w-2xl overflow-y-auto"
+      maxWidthClass="max-w-2xl"
+      stickyHeader
     >
       <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-4">
         <div>
@@ -163,6 +189,7 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
           </label>
           <Input
             id="prompt-title"
+            ref={titleRef}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Explain code like I'm five"
@@ -180,7 +207,8 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Paste or write your prompt. Formatting is preserved exactly."
-            rows={10}
+            rows={16}
+            className="min-h-64 resize-y sm:min-h-80"
           />
         </div>
 
@@ -309,17 +337,71 @@ export function PromptFormDialog({ open, onOpenChange, initial, onSubmit }: Prom
 
         {error ? <p role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</p> : null}
 
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <Button type="button" variant="ghost" onClick={() => handleClose(false)}>
-            Cancel
-          </Button>
-          <Button type="submit" variant="primary" disabled={submitting}>
-            {submitting ? 'Saving…' : 'Save'}
-          </Button>
+        <div className="sticky -bottom-4 z-20 -mx-4 -mb-4 mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200 bg-white px-4 pt-3 pb-4 dark:border-neutral-800 dark:bg-neutral-950 sm:-bottom-6 sm:-mx-6 sm:-mb-6 sm:px-6 sm:pb-6">
+          <p className="text-xs text-neutral-500">Tip: Ctrl/⌘ + Enter to save.</p>
+          <div className="flex shrink-0 items-center justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => handleClose(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" disabled={submitting}>
+              {submitting ? 'Saving…' : 'Save'}
+            </Button>
+          </div>
         </div>
-        <p className="text-xs text-neutral-400">Tip: Ctrl/⌘ + Enter to save.</p>
       </form>
+      {confirmDiscardOpen ? (
+        <Dialog
+          open
+          onOpenChange={setConfirmDiscardOpen}
+          title="Discard unsaved changes?"
+          description="Your changes to this prompt have not been saved."
+          initialFocusRef={keepEditingRef}
+          returnFocusRef={titleRef}
+        >
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              ref={keepEditingRef}
+              variant="ghost"
+              onClick={() => setConfirmDiscardOpen(false)}
+              data-autofocus-safe="true"
+            >
+              Keep editing
+            </Button>
+            <Button variant="danger" onClick={discardChanges} data-autofocus-unsafe="true">
+              Discard
+            </Button>
+          </div>
+        </Dialog>
+      ) : null}
     </Dialog>
   );
+}
+
+type PromptFormState = {
+  title: string;
+  content: string;
+  description: string;
+  folderId: string;
+  newFolderName?: string;
+  tagIds: string[];
+  newTagNames: string[];
+  type: AssetType;
+  targetTools: TargetTool[];
+  notes: string;
+  variableDefaults: Record<string, string>;
+};
+
+function serializeFormState(state: PromptFormState): string {
+  return JSON.stringify({
+    ...state,
+    tagIds: [...state.tagIds].sort(),
+    newTagNames: [...state.newTagNames].sort((left, right) =>
+      normalizeName(left).localeCompare(normalizeName(right)),
+    ),
+    targetTools: [...state.targetTools].sort(),
+    variableDefaults: Object.fromEntries(
+      Object.entries(state.variableDefaults).sort(([left], [right]) => left.localeCompare(right)),
+    ),
+  });
 }
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Dialog } from './Dialog';
 
 function DialogHarness() {
@@ -16,6 +16,22 @@ function DialogHarness() {
         <button type="button">Last action</button>
       </Dialog>
     </>
+  );
+}
+
+function InitialFocusDialogHarness() {
+  const initialFocusRef = useRef<HTMLButtonElement>(null);
+  return (
+    <Dialog
+      open
+      onOpenChange={() => undefined}
+      title="Initial focus dialog"
+      initialFocusRef={initialFocusRef}
+    >
+      <button ref={initialFocusRef} type="button">
+        Preferred action
+      </button>
+    </Dialog>
   );
 }
 
@@ -50,5 +66,10 @@ describe('Dialog', () => {
       'overflow-y-auto',
       'overscroll-contain',
     );
+  });
+
+  it('focuses the requested child when opened', async () => {
+    render(<InitialFocusDialogHarness />);
+    expect(await screen.findByRole('button', { name: 'Preferred action' })).toHaveFocus();
   });
 });
