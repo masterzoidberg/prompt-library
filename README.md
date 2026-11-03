@@ -8,12 +8,19 @@ Personal V1 supports prompt CRUD, full-content reading, folders, tags, favorites
 
 [Open Prompt Library](https://masterzoidberg.github.io/prompt-library/). This static version saves your library in this browser's IndexedDB; it does not upload or sync prompts to a server. Use the JSON export/import flow in Settings to back up or move your library to another browser or device.
 
+## Offline availability and updates
+
+After the first successful online load, the service worker caches the static application shell, manifest, and icons. The shell can then be reopened and reloaded offline. Prompts, folders, tags, versions, bundles, and settings remain in IndexedDB; they are never copied into Cache Storage. Local edits and creation continue to work offline. Installation is optional through the browser's native install controls.
+
+New app assets download in a separate precache while an existing app version is open. The new service worker waits until all pages using the old version close, then activates. No open page is refreshed automatically, so unsaved form edits are not interrupted; the next launch loads the updated shell.
+
 ## Commands
 
 ```bash
 npm ci --include=dev  # Install the lockfile, including verification tools
 npm run dev           # Start the Vite development server
 npm run build         # Type-check and create a production bundle
+npm run test:e2e:pwa  # Build for /prompt-library/ and verify installability/offline reload
 npm run preview       # Serve the production bundle locally
 npm run lint          # Run oxlint against src/
 npm run test          # Run unit/component tests once
@@ -24,6 +31,8 @@ docker compose up --build  # Build and serve the production image at localhost:8
 ```
 
 `npm run test` intentionally excludes the Playwright files under `tests/e2e/` and the timing-sensitive benchmark under `src/performance/`; run those through their dedicated commands.
+
+`npm run test:e2e:pwa` creates the GitHub Pages-style production build and serves it at `/prompt-library/` to verify the manifest, service worker, icons, and offline IndexedDB workflow.
 
 ## Stack
 
